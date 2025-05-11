@@ -1497,12 +1497,25 @@
 			skipAllTrialsButton.addEventListener('click', function() {
 				log('Admin: Skipped all trials');
 			
-			// Add this to the initAdminControls function, after the other skip button event listeners:
+				// Clean up any running timers
+				cleanupTimers();
+			
+				state.currentTrial = config.numTrials;
+				state.correctResponses = config.numTrials; // All correct for admin skip
+				
+				// Fill in placeholder response times for skipped trials
+				state.responseTimes = Array(config.numTrials).fill(0.5); // 0.5 seconds as a placeholder
+				state.timeoutTrials = []; // No timeouts in admin skip
+			
+				experimentComplete();
+			});
+		
+			// Move the skipPracticeTrialsButton event listener here, outside of skipAllTrialsButton
 			skipPracticeTrialsButton.addEventListener('click', function() {
-    			log('Admin: Skipped practice trials');
-    			practiceTrialsPage.style.display = 'none';
-    			experimentArea.style.display = 'block';
-    			initExperiment();
+				log('Admin: Skipped practice trials');
+				practiceTrialsPage.style.display = 'none';
+				experimentArea.style.display = 'block';
+				initExperiment();
 			});
 			
 			// Clean up any running timers
@@ -2699,8 +2712,59 @@
                     
                     let testPositions = [...state.stimuliPositions];
                     if (state.hasChange) {
-                        // Code for changing positions remains the same
-                        // ...
+                        // Determine how many objects will move (between 1-3)
+                        const numObjectsToMove = Math.floor(Math.random() * 
+                            (config.maxObjectsToMove - config.minObjectsToMove + 1)) + config.minObjectsToMove;
+                        
+                        // Decide if we're swapping or moving randomly
+                        const isSwapping = Math.random() < config.swapProbability;
+                        
+                        if (isSwapping && numObjectsToMove === 2) {
+                            // Swap positions of two random objects
+                            const indices = getRandomIndices(config.numStimuli, 2);
+                            const temp = { ...testPositions[indices[0]] };
+                            testPositions[indices[0]] = { ...testPositions[indices[1]] };
+                            testPositions[indices[1]] = temp;
+                            
+                            log(`Trial ${state.currentTrial + 1}: Swapped positions of stimuli ${indices[0]} and ${indices[1]}`);
+                        } else {
+                            // Move random objects with distance constraints
+                            const indices = getRandomIndices(config.numStimuli, numObjectsToMove);
+                            indices.forEach(index => {
+                                const oldPos = testPositions[index];
+                                
+                                // Calculate new position with minimum and maximum distance constraints
+                                let newPos;
+                                let distance;
+                                let attempts = 0;
+                                
+                                do {
+                                    // Generate a potential new position
+                                    const newX = Math.random() * config.maxPos * (stimuliArea.offsetWidth - config.stimulusSize);
+                                    const newY = Math.random() * config.maxPos * (stimuliArea.offsetHeight - config.stimulusSize);
+                                    newPos = { x: newX, y: newY };
+                                    
+                                    // Calculate distance from old position
+                                    distance = Math.sqrt(
+                                        Math.pow(newPos.x - oldPos.x, 2) + 
+                                        Math.pow(newPos.y - oldPos.y, 2)
+                                    );
+                                    
+                                    attempts++;
+                                    
+                                    // Break after too many attempts to avoid infinite loop
+                                    if (attempts > 100) break;
+                                } while (
+                                    distance < config.minMoveDistance() || 
+                                    distance > config.maxMoveDistance()
+                                );
+                                
+                                // Apply the new position
+                                testPositions[index] = newPos;
+                            });
+                            
+                            log(`Trial ${state.currentTrial + 1}: Changed positions of ${numObjectsToMove} stimuli: ${indices.join(', ')}`);
+                        }
                     } else {
                         log(`Trial ${state.currentTrial + 1}: No change`);
                     }
@@ -3028,7 +3092,24 @@
         
         retryButton.addEventListener('click', saveResultsToSheet);
 
-        // Keyboard shortcuts
+		// Practice trials event listeners
+		startPracticeTrial.addEventListener('click', runPracticeTrial);
+		
+		practiceYes.addEventListener('click', function() {
+			processPracticeResponse('yes');
+		});
+		
+		practiceNo.addEventListener('click', function() {
+			processPracticeResponse('no');
+		});
+		
+		skipPracticeTrialsButton.addEventListener('click', function() {
+			log('Admin: Skipped practice trials');
+			practiceTrialsPage.style.display = 'none';
+			experimentArea.style.display = 'block';
+			initExperiment();
+		});
+        
         // Keyboard shortcuts
 		document.addEventListener('keydown', function(event) {
 			// Check if we're in different phases of the experiment
