@@ -2649,9 +2649,9 @@
         document.addEventListener('keydown', function(event) {
             if (responseYes.disabled) return;
             
-            if (event.key === 'k' || event.key === 'K') {
+            if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
                 processResponse('yes');
-            } else if (event.key === 'd' || event.key === 'D') {
+            } else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
                 processResponse('no');
             }
         });
