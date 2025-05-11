@@ -587,6 +587,136 @@
     		}
 		}
 		
+		/* Responsive layouts for all sections */
+
+		/* Main experiment area */
+		#experimentArea {
+    		height: 100vh;
+    		overflow: hidden;
+    		padding: 20px;
+		}
+		
+		/* Training pages */
+		#noChangeTrainingPage,
+		#changeTrainingPage {
+    		height: 100vh;
+    		overflow: hidden;
+    		padding: 20px;
+		}
+		
+		/* Common instruction wrapper styles */
+		#experimentInstructionsWrapper,
+		#noChangeInstructionsWrapper,
+		#changeInstructionsWrapper {
+    		overflow-y: auto;
+		}
+		
+		#experimentMainArea,
+		#noChangeMainArea,
+		#changeMainArea {
+    		display: flex;
+    		flex-direction: column;
+    		min-width: 0;
+		}
+		
+		/* Side-by-side layout for larger screens */
+		@media screen and (min-width: 769px) {
+    		#experimentArea,
+    		#noChangeTrainingPage,
+    		#changeTrainingPage {
+        		display: flex;
+        		flex-direction: row;
+        		gap: 20px;
+    		}
+		    
+    		#experimentInstructionsWrapper,
+    		#noChangeInstructionsWrapper,
+    		#changeInstructionsWrapper {
+        		flex: 0 0 320px;
+    		}
+		    
+    		#experimentMainArea,
+    		#noChangeMainArea,
+    		#changeMainArea {
+        		flex: 1;
+    		}
+		    
+    		#stimuliArea,
+    		#noChangeTrainingArea,
+    		#changeTrainingArea {
+        		flex: 1;
+        		min-height: 300px;
+    		}
+		    
+    		#controls,
+    		#noChangeTrainingControls,
+    		#changeTrainingControls {
+        		flex: 0 0 auto;
+    		}
+		    
+    		#experimentTrialInfo {
+        		font-weight: bold;
+        		margin-bottom: 15px;
+        		font-size: 18px;
+    		}
+		}
+		
+		/* Mobile layout */
+		@media screen and (max-width: 768px) {
+    		#experimentArea,
+    		#noChangeTrainingPage,
+    		#changeTrainingPage {
+        		display: flex;
+        		flex-direction: column;
+        		height: auto;
+        		min-height: 100vh;
+    		}
+		    
+    		.mobile-only {
+        		display: block;
+    		}
+		    
+    		#experimentFullInstructions,
+    		#noChangeFullInstructions,
+    		#changeFullInstructions {
+        		display: none;
+    		}
+		    
+    		#experimentInstructionsWrapper,
+    		#noChangeInstructionsWrapper,
+    		#changeInstructionsWrapper {
+        		flex: none;
+        		max-height: 40vh;
+        		overflow-y: auto;
+    		}
+		    
+    		#stimuliArea,
+    		#noChangeTrainingArea,
+    		#changeTrainingArea {
+        		height: 300px;
+        		margin: 10px 0;
+    		}
+		    
+    		#controls,
+    		#noChangeTrainingControls,
+    		#changeTrainingControls {
+        		text-align: center;
+    		}
+		    
+    		#controls button,
+    		#noChangeTrainingControls button,
+    		#changeTrainingControls button {
+        		margin: 5px;
+        		width: calc(50% - 10px);
+    		}
+		    
+    		#experimentTrialInfo {
+        		font-weight: bold;
+        		font-size: 16px;
+        		margin-bottom: 10px;
+    		}
+		}
+		
         #timeoutMessage {
             position: absolute;
             top: 50%;
@@ -668,35 +798,65 @@
         </div>
         
         <div id="noChangeTrainingPage" style="display:none;">
-            <h2 id="noChangeTitle">Practice Trial: No Change</h2>
-            <p id="noChangeText1">In this practice, you will see an example where <strong>NO squares change position</strong>.</p>
-            <p id="noChangeText2">First, several colored squares will appear. Try to remember their positions.</p>
-            <p id="noChangeText3">After they disappear briefly, they will reappear in the <strong>exact same positions</strong>.</p>
-            <p id="noChangeText4">When this happens, you should click the <strong>"No Change"</strong> button.</p>
-            <div id="noChangeTrainingArea"></div>
-            <div id="noChangeTrainingControls">
-                <button id="startNoChangeTraining">Start Practice Trial</button>
-                <button id="noChangeTrainingYes" disabled>Change Detected (K)</button>
-                <button id="noChangeTrainingNo" disabled>No Change (D)</button>
-                <button id="skipNoChangeTrainingButton" class="adminButton skipButton">Skip No-Change Training</button>
+            <div id="noChangeInstructionsWrapper">
+                <h2 id="noChangeTitle">Practice Trial: No Change</h2>
+                
+                <!-- Mobile compact version -->
+                <div id="noChangeCompactInstructions" class="mobile-only">
+                    <p id="noChangeSummary">Practice: NO squares change position.</p>
+                    <button id="toggleNoChangeDetails" style="font-size: 14px; padding: 5px 10px; margin: 5px 0;">Show Instructions</button>
+                </div>
+                
+                <!-- Full instructions -->
+                <div id="noChangeFullInstructions">
+                    <p id="noChangeText1">In this practice, you will see an example where <strong>NO squares change position</strong>.</p>
+                    <p id="noChangeText2">First, several colored squares will appear. Try to remember their positions.</p>
+                    <p id="noChangeText3">After they disappear briefly, they will reappear in the <strong>exact same positions</strong>.</p>
+                    <p id="noChangeText4">When this happens, you should click the <strong>"No Change"</strong> button.</p>
+                </div>
             </div>
-            <div id="noChangeFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
+            
+            <div id="noChangeMainArea">
+                <div id="noChangeTrainingArea"></div>
+                <div id="noChangeTrainingControls">
+                    <button id="startNoChangeTraining">Start Practice Trial</button>
+                    <button id="noChangeTrainingYes" disabled>Change Detected (K)</button>
+                    <button id="noChangeTrainingNo" disabled>No Change (D)</button>
+                    <button id="skipNoChangeTrainingButton" class="adminButton skipButton">Skip No-Change Training</button>
+                </div>
+                <div id="noChangeFeedback" style="margin-top: 15px; font-weight: bold; display: none;"></div>
+            </div>
         </div>
         
         <div id="changeTrainingPage" style="display:none;">
-            <h2 id="changeTitle">Practice Trial: Change</h2>
-            <p id="changeText1">In this practice, you will see an example where <strong>one or more squares CHANGE position</strong>.</p>
-            <p id="changeText2">First, several colored squares will appear. Try to remember their positions.</p>
-            <p id="changeText3">After they disappear briefly, they will reappear with <strong>at least one square in a different position</strong>.</p>
-            <p id="changeText4">When this happens, you should click the <strong>"Change Detected"</strong> button.</p>
-            <div id="changeTrainingArea"></div>
-            <div id="changeTrainingControls">
-                <button id="startChangeTraining">Start Practice Trial</button>
-                <button id="changeTrainingYes" disabled>Change Detected (K)</button>
-                <button id="changeTrainingNo" disabled>No Change (D)</button>
-                <button id="skipChangeTrainingButton" class="adminButton skipButton">Skip Change Training</button>
+            <div id="changeInstructionsWrapper">
+                <h2 id="changeTitle">Practice Trial: Change</h2>
+                
+                <!-- Mobile compact version -->
+                <div id="changeCompactInstructions" class="mobile-only">
+                    <p id="changeSummary">Practice: Squares DO change position.</p>
+                    <button id="toggleChangeDetails" style="font-size: 14px; padding: 5px 10px; margin: 5px 0;">Show Instructions</button>
+                </div>
+                
+                <!-- Full instructions -->
+                <div id="changeFullInstructions">
+                    <p id="changeText1">In this practice, you will see an example where <strong>one or more squares CHANGE position</strong>.</p>
+                    <p id="changeText2">First, several colored squares will appear. Try to remember their positions.</p>
+                    <p id="changeText3">After they disappear briefly, they will reappear with <strong>at least one square in a different position</strong>.</p>
+                    <p id="changeText4">When this happens, you should click the <strong>"Change Detected"</strong> button.</p>
+                </div>
             </div>
-            <div id="changeFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
+            
+            <div id="changeMainArea">
+                <div id="changeTrainingArea"></div>
+                <div id="changeTrainingControls">
+                    <button id="startChangeTraining">Start Practice Trial</button>
+                    <button id="changeTrainingYes" disabled>Change Detected (K)</button>
+                    <button id="changeTrainingNo" disabled>No Change (D)</button>
+                    <button id="skipChangeTrainingButton" class="adminButton skipButton">Skip Change Training</button>
+                </div>
+                <div id="changeFeedback" style="margin-top: 15px; font-weight: bold; display: none;"></div>
+            </div>
         </div>
         
 		<div id="practiceTrialsPage" style="display:none;">
@@ -732,15 +892,29 @@
 		</div>
 		
         <div id="experimentArea" style="display:none;">
-            <div id="instructions">
-                <p id="mainInstructionsText">Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.</p>
+            <div id="experimentInstructionsWrapper">
+                <div id="experimentTrialInfo">Trial <span id="currentTrialDisplay">1</span> of <span id="totalTrialsDisplay">10</span></div>
+                
+                <!-- Mobile compact version -->
+                <div id="experimentCompactInstructions" class="mobile-only">
+                    <p id="mainExperimentSummary">Remember square positions. Indicate if any changed.</p>
+                    <button id="toggleExperimentDetails" style="font-size: 14px; padding: 5px 10px; margin: 5px 0;">Show Instructions</button>
+                </div>
+                
+                <!-- Full instructions -->
+                <div id="experimentFullInstructions">
+                    <p id="mainInstructionsText">Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.</p>
+                </div>
             </div>
-            <div id="stimuliArea"></div>
-            <div id="controls">
-                <button id="startButton">Start Experiment</button>
-                <button id="responseYes" disabled>Change Detected (K)</button>
-                <button id="responseNo" disabled>No Change (D)</button>
-                <button id="skipAllTrialsButton" class="adminButton skipButton">Skip All Trials</button>
+            
+            <div id="experimentMainArea">
+                <div id="stimuliArea"></div>
+                <div id="controls">
+                    <button id="startButton">Start Experiment</button>
+                    <button id="responseYes" disabled>Change Detected (K)</button>
+                    <button id="responseNo" disabled>No Change (D)</button>
+                    <button id="skipAllTrialsButton" class="adminButton skipButton">Skip All Trials</button>
+                </div>
             </div>
         </div>
         
@@ -920,6 +1094,13 @@
 				practiceFeedbackComplete: "All practice trials completed! Starting main experiment...",
 				practiceFeedbackRetry: "Some trials were incorrect. Let's try all 3 again after 5 seconds.",
 				skipPracticeTrialsButton: "Skip Practice Trials",
+				
+				// Add these new entries for all sections
+     		    showInstructions: "Show Instructions",
+    		    hideInstructions: "Hide Instructions",
+        		mainExperimentSummary: "Remember square positions. Indicate if any changed.",
+        		noChangeSummary: "Practice: NO squares change position.",
+        		changeSummary: "Practice: Squares DO change position.",
                 
                 // Main experiment
                 mainInstructionsText: "Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.",
@@ -1073,6 +1254,13 @@
                 startButton: "התחל ניסוי",
                 responseYes: "שינוי זוהה (K)",
                 responseNo: "אין שינוי (D)",
+				
+				// Add these new entries for all sections
+				showInstructions: "הצג הוראות",
+				hideInstructions: "הסתר הוראות",
+				mainExperimentSummary: "זכור מיקומי הריבועים. ציין אם השתנו.",
+				noChangeSummary: "תרגול: הריבועים לא משנים מיקום.",
+				changeSummary: "תרגול: הריבועים כן משנים מיקום.",
                 
                 // Results & end screens
                 savingText: "שומר נתונים, אנא המתן/י...",
@@ -1326,8 +1514,34 @@
                     element.classList.remove("rtl");
                 }
             });
+			
+			// Update new text elements
+	        updateText("mainExperimentSummary", "mainExperimentSummary");
+        	updateText("noChangeSummary", "noChangeSummary");
+        	updateText("changeSummary", "changeSummary");
+	
+        	// Update toggle buttons based on current state
+        	const updateToggleButtons = (toggleId, instructionId, showKey, hideKey) => {
+	            const toggleButton = document.getElementById(toggleId);
+            	const instructions = document.getElementById(instructionId);
+            	if (toggleButton && instructions) {
+	                if (instructions.style.display === 'none') {
+                    	toggleButton.textContent = langDict[currentLang][showKey];
+                	} else {
+	                    toggleButton.textContent = langDict[currentLang][hideKey];
+                	}
+            	}
+        	};
+	
+        	// Update all toggle buttons
+        	updateToggleButtons('toggleExperimentDetails', 'experimentFullInstructions', 'showInstructions', 'hideInstructions');
+        	updateToggleButtons('toggleNoChangeDetails', 'noChangeFullInstructions', 'showInstructions', 'hideInstructions');
+        	updateToggleButtons('toggleChangeDetails', 'changeFullInstructions', 'showInstructions', 'hideInstructions');
+        	updateToggleButtons('togglePracticeDetails', 'practiceFullInstructions', 'showPracticeDetails', 'hidePracticeDetails');
         }
         
+		
+		
         // Event listener for language toggle button
         document.getElementById("languageToggle").addEventListener("click", function() {
             currentLang = currentLang === "en" ? "he" : "en";
@@ -1626,6 +1840,7 @@
                 log('Admin: Skipped change training');
                 changeTrainingPage.style.display = 'none';
                 experimentArea.style.display = 'block';
+				setupExperimentAreaForDevice();
                 initExperiment();
             });
             
@@ -1650,6 +1865,7 @@
     			log('Admin: Skipped practice trials');
     			practiceTrialsPage.style.display = 'none';
     			experimentArea.style.display = 'block';
+				setupExperimentAreaForDevice();
     			initExperiment();
 			});
 			            
@@ -2108,7 +2324,85 @@
     		langDict.en[key] = additionalLangDict.en[key];
     		langDict.he[key] = additionalLangDict.he[key];
 		});
-				
+		
+		// Function to setup main experiment area for device type
+		function setupExperimentAreaForDevice() {
+    		const toggleButton = document.getElementById('toggleExperimentDetails');
+    		const fullInstructions = document.getElementById('experimentFullInstructions');
+    		const compactInstructions = document.getElementById('experimentCompactInstructions');
+		    
+    		if (isMobile) {
+        		compactInstructions.style.display = 'block';
+        		fullInstructions.style.display = 'none';
+		        
+		        toggleButton.addEventListener('click', function() {
+            		if (fullInstructions.style.display === 'none') {
+                		fullInstructions.style.display = 'block';
+                		toggleButton.textContent = langDict[currentLang].hideInstructions;
+            		} else {
+                		fullInstructions.style.display = 'none';
+                		toggleButton.textContent = langDict[currentLang].showInstructions;
+            		}
+        		});
+    		} else {
+        		compactInstructions.style.display = 'none';
+        		fullInstructions.style.display = 'block';
+    		}
+		    
+    		// Update trial counter text
+    		updateLanguage();
+		}
+		
+		// Function to setup no-change training for device type
+		function setupNoChangeTrainingForDevice() {
+    		const toggleButton = document.getElementById('toggleNoChangeDetails');
+    		const fullInstructions = document.getElementById('noChangeFullInstructions');
+    		const compactInstructions = document.getElementById('noChangeCompactInstructions');
+		    
+    		if (isMobile) {
+        		compactInstructions.style.display = 'block';
+        		fullInstructions.style.display = 'none';
+		        
+		        toggleButton.addEventListener('click', function() {
+            		if (fullInstructions.style.display === 'none') {
+                		fullInstructions.style.display = 'block';
+                		toggleButton.textContent = langDict[currentLang].hideInstructions;
+            		} else {
+                		fullInstructions.style.display = 'none';
+                		toggleButton.textContent = langDict[currentLang].showInstructions;
+            		}
+        		});
+    		} else {
+        		compactInstructions.style.display = 'none';
+        		fullInstructions.style.display = 'block';
+    		}
+		}
+		
+		// Function to setup change training for device type
+		function setupChangeTrainingForDevice() {
+    		const toggleButton = document.getElementById('toggleChangeDetails');
+    		const fullInstructions = document.getElementById('changeFullInstructions');
+    		const compactInstructions = document.getElementById('changeCompactInstructions');
+		    
+    		if (isMobile) {
+        		compactInstructions.style.display = 'block';
+        		fullInstructions.style.display = 'none';
+		        
+		        toggleButton.addEventListener('click', function() {
+            		if (fullInstructions.style.display === 'none') {
+                		fullInstructions.style.display = 'block';
+                		toggleButton.textContent = langDict[currentLang].hideInstructions;
+            		} else {
+                		fullInstructions.style.display = 'none';
+                		toggleButton.textContent = langDict[currentLang].showInstructions;
+            		}
+        		});
+    		} else {
+        		compactInstructions.style.display = 'none';
+        		fullInstructions.style.display = 'block';
+		    }
+		}
+		
         // Initialize on page load
         window.addEventListener('load', function() {
             // Generate or retrieve the device ID
@@ -2238,6 +2532,8 @@
             // Show no-change training page
             noChangeTrainingPage.style.display = 'block';
             
+			setupNoChangeTrainingForDevice();
+			
             log('Moving to no-change training page');
         });
         
@@ -2333,6 +2629,7 @@
             setTimeout(function() {
                 noChangeTrainingPage.style.display = 'none';
                 changeTrainingPage.style.display = 'block';
+				setupChangeTrainingForDevice();
             }, 2000);
         });
         
@@ -2720,6 +3017,7 @@
 			setTimeout(() => {
 				practiceTrialsPage.style.display = 'none';
 				experimentArea.style.display = 'block';
+				setupExperimentAreaForDevice();
 				initExperiment();
 			}, 3000);
 		}
@@ -3277,6 +3575,7 @@
 			log('Admin: Skipped practice trials');
 			practiceTrialsPage.style.display = 'none';
 			experimentArea.style.display = 'block';
+			setupExperimentAreaForDevice();
 			initExperiment();
 		});
         
