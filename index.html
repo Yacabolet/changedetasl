@@ -467,6 +467,126 @@
             z-index: 999;
         }
         
+		/* Add these styles to your existing CSS */
+
+		/* Desktop/Tablet: Side-by-side layout */
+		#practiceTrialsPage {
+    		height: 100vh;
+    		overflow: hidden;
+    		padding: 20px;
+		}
+		
+		#practiceInstructionsWrapper {
+    		overflow-y: auto;
+		}
+		
+		#practiceMainArea {
+    		display: flex;
+    		flex-direction: column;
+    		min-width: 0;
+		}
+		
+		/* Hide mobile toggle on desktop */
+		.mobile-only {
+    		display: none;
+		}
+		
+		#practiceFullInstructions {
+    		display: block;
+		}
+		
+		/* Larger screens: Side-by-side layout */
+		@media screen and (min-width: 769px) {
+    		#practiceTrialsPage {
+        		display: flex;
+        		flex-direction: row;
+        		gap: 20px;
+    		}
+		    
+    		#practiceInstructionsWrapper {
+        		flex: 0 0 320px;
+    		}
+		    
+    		#practiceMainArea {
+        		flex: 1;
+    		}
+		    
+    		#practiceArea {
+        		flex: 1;
+        		min-height: 300px;
+    		}
+		    
+    		#practiceControls {
+        		flex: 0 0 auto;
+    		}
+		}
+		
+		/* Mobile: Stacked layout with compact instructions */
+		@media screen and (max-width: 768px) {
+    		#practiceTrialsPage {
+        		display: flex;
+        		flex-direction: column;
+        		height: auto;
+        		min-height: 100vh;
+    		}
+		    
+    		.mobile-only {
+        		display: block;
+    		}
+		    
+    		#practiceFullInstructions {
+        		display: none; /* Hidden by default on mobile */
+    		}
+		    
+    		#practiceInstructionsWrapper {
+        		flex: none;
+        		max-height: 40vh;
+        		overflow-y: auto;
+    		}
+		    
+    		#practiceArea {
+        		height: 300px;
+        		margin: 10px 0;
+    		}
+		    
+    		#practiceControls {
+        		text-align: center;
+    		}
+		    
+    		#practiceControls button {
+        		margin: 5px;
+        		width: calc(50% - 10px);
+    		}
+		}
+		
+		/* Additional mobile improvements */
+		@media screen and (max-width: 480px) {
+    		#practiceArea {
+        		height: 250px;
+    		}
+		    
+    		#practiceControls button {
+        		width: 100%;
+        		margin: 5px 0;
+    		}
+		    
+    		#practiceInstructionsWrapper {
+        		padding: 10px;
+    		}
+		}
+		
+		/* Ensure practice area doesn't get too small on very small screens */
+		@media screen and (max-height: 500px) {
+    		#practiceTrialsPage {
+        		overflow-y: auto;
+    		}
+		    
+    		#practiceArea {
+        		height: 200px;
+        		min-height: 200px;
+    		}
+		}
+		
         #timeoutMessage {
             position: absolute;
             top: 50%;
@@ -580,20 +700,35 @@
         </div>
         
 		<div id="practiceTrialsPage" style="display:none;">
-			<h2 id="practiceTitle">Practice Trials</h2>
-			<p id="practiceText1">Now you'll complete 3 practice trials to make sure you understand the task.</p>
-			<p id="practiceText2">Some squares may change position, some may not. Use your best judgment.</p>
-			<p id="practiceText3">You must correctly identify all 3 trials to continue to the main experiment.</p>
-			<p id="practiceText4">Remember: You have 15 seconds to respond to each trial.</p>
-			<div id="practiceTrialNumber" style="font-weight: bold; margin: 10px 0;">Trial 1 of 3</div>
-			<div id="practiceArea"></div>
-			<div id="practiceControls">
-				<button id="startPracticeTrial">Start Practice Trial</button>
-				<button id="practiceYes" disabled>Change Detected (K)</button>
-				<button id="practiceNo" disabled>No Change (D)</button>
-				<button id="skipPracticeTrialsButton" class="adminButton skipButton">Skip Practice Trials</button>
-			</div>
-			<div id="practiceFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
+    		<div id="practiceInstructionsWrapper">
+        		<h2 id="practiceTitle">Practice Trials</h2>
+        		<div id="practiceTrialNumber" style="font-weight: bold; margin: 10px 0;">Trial 1 of 3</div>
+		        
+		        <!-- Mobile compact version with toggle -->
+		        <div id="practiceCompactInstructions" class="mobile-only">
+            		<p id="mobileInstructionSummary">Complete 3 practice trials. Identify if squares change position.</p>
+            		<button id="togglePracticeDetails" style="font-size: 14px; padding: 5px 10px; margin: 5px 0;">Show Full Instructions</button>
+        		</div>
+		        
+		        <!-- Full instructions (always visible on desktop, toggleable on mobile) -->
+		        <div id="practiceFullInstructions">
+            		<p id="practiceText1">Now you'll complete 3 practice trials to make sure you understand the task.</p>
+            		<p id="practiceText2">Some squares may change position, some may not. Use your best judgment.</p>
+            		<p id="practiceText3">You must correctly identify all 3 trials to continue to the main experiment.</p>
+            		<p id="practiceText4">Remember: You have 15 seconds to respond to each trial.</p>
+        		</div>
+    		</div>
+    
+    		<div id="practiceMainArea">
+        		<div id="practiceArea"></div>
+        		<div id="practiceControls">
+            		<button id="startPracticeTrial">Start Practice Trial</button>
+            		<button id="practiceYes" disabled>Change Detected (K)</button>
+            		<button id="practiceNo" disabled>No Change (D)</button>
+            		<button id="skipPracticeTrialsButton" class="adminButton skipButton">Skip Practice Trials</button>
+        		</div>
+        		<div id="practiceFeedback" style="margin-top: 15px; font-weight: bold; display: none;"></div>
+    		</div>
 		</div>
 		
         <div id="experimentArea" style="display:none;">
@@ -1913,7 +2048,67 @@
             debugInfo.appendChild(logLine);
             debugInfo.scrollTop = debugInfo.scrollHeight;
         }
+		
+		// Add this after the isMobile detection and other initialization code
 
+		// Function to setup practice page based on device type
+		function setupPracticePageForDevice() {
+    		const toggleButton = document.getElementById('togglePracticeDetails');
+    		const fullInstructions = document.getElementById('practiceFullInstructions');
+    		const compactInstructions = document.getElementById('practiceCompactInstructions');
+		    
+    		if (isMobile) {
+        		// Mobile setup: Show compact by default with toggle
+        		compactInstructions.style.display = 'block';
+        		fullInstructions.style.display = 'none';
+		        
+		        toggleButton.addEventListener('click', function() {
+            		if (fullInstructions.style.display === 'none') {
+                		fullInstructions.style.display = 'block';
+                		toggleButton.textContent = langDict[currentLang].hidePracticeDetails || 'Hide Details';
+            		} else {
+                		fullInstructions.style.display = 'none';
+                		toggleButton.textContent = langDict[currentLang].showPracticeDetails || 'Show Full Instructions';
+            		}
+        		});
+    		} else {
+        		// Desktop setup: Always show full instructions
+        		compactInstructions.style.display = 'none';
+        		fullInstructions.style.display = 'block';
+    		}
+		}
+		
+		// Call this function when the practice page is displayed
+		function showPracticeTrialsPage() {
+    		// Hide other pages
+    		changeTrainingPage.style.display = 'none';
+    		practiceTrialsPage.style.display = 'block';
+		    
+    		// Setup for device type
+    		setupPracticePageForDevice();
+		    
+    		// Initialize practice trials
+    		initPracticeTrials();
+		}
+		
+		// Update the language dictionary with new toggle text
+		const additionalLangDict = {
+    		en: {
+        		showPracticeDetails: "Show Full Instructions",
+        		hidePracticeDetails: "Hide Details"
+    		},
+    		he: {
+        		showPracticeDetails: "הצג הוראות מלאות",
+        		hidePracticeDetails: "הסתר פרטים"
+    		}
+		};
+		
+		// Merge with existing langDict
+		Object.keys(additionalLangDict.en).forEach(key => {
+    		langDict.en[key] = additionalLangDict.en[key];
+    		langDict.he[key] = additionalLangDict.he[key];
+		});
+				
         // Initialize on page load
         window.addEventListener('load', function() {
             // Generate or retrieve the device ID
@@ -2254,23 +2449,21 @@
         startChangeTraining.addEventListener('click', runChangeTraining);
         
         // Replace the changeTrainingYes event listener with:
-		changeTrainingYes.addEventListener('click', function() {
-			changeTrainingYes.disabled = true;
-			changeTrainingNo.disabled = true;
-			
-			changeFeedback.textContent = langDict[currentLang].changeFeedbackCorrect;
-			changeFeedback.style.color = 'green';
-			changeFeedback.style.display = 'block';
-			
-			log('Change training: correct response ("yes")');
-			
-			// Move to practice trials after 2 seconds
-			setTimeout(function() {
-				changeTrainingPage.style.display = 'none';
-				practiceTrialsPage.style.display = 'block';
-				initPracticeTrials();
-			}, 2000);
-		});
+        changeTrainingYes.addEventListener('click', function() {
+            changeTrainingYes.disabled = true;
+            changeTrainingNo.disabled = true;
+            
+            changeFeedback.textContent = langDict[currentLang].changeFeedbackCorrect;
+            changeFeedback.style.color = 'green';
+            changeFeedback.style.display = 'block';
+            
+            log('Change training: correct response ("yes")');
+            
+            // Move to practice trials after 2 seconds
+            setTimeout(function() {
+                showPracticeTrialsPage(); // Use the new function
+            }, 2000);
+        });
 			
         changeTrainingNo.addEventListener('click', function() {
             // Disable response buttons
