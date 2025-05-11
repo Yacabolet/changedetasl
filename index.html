@@ -2367,14 +2367,14 @@
 			}
 			
 			// Display initial stimuli
-			clearStimuliArea(practiceArea);
-			displayStimuliInArea(trial.positions, practiceArea, trial.colorIndices);
+			clearPracticeArea(practiceArea);
+			displayStimuliInPracticeArea(trial.positions, practiceArea, trial.colorIndices);
 			
 			log(`Practice trial ${state.currentPracticeTrial + 1}: ${trial.hasChange ? 'Change' : 'No change'}`);
 			
 			// After study time, blank screen
 			setTimeout(() => {
-				clearStimuliArea(practiceArea);
+				clearPracticeArea(practiceArea);
 				
 				// After blank time, show test stimuli
 				setTimeout(() => {
@@ -2423,7 +2423,7 @@
 					}
 					
 					// Display test stimuli
-					displayStimuliInArea(trial.testPositions, practiceArea, trial.colorIndices);
+					displayStimuliInPracticeArea(trial.testPositions, practiceArea, trial.colorIndices);
 					
 					// Enable responses and start timer
 					practiceYes.disabled = false;
@@ -2536,23 +2536,23 @@
 		}
 		
 		// Helper functions for practice trials
-		function clearStimuliArea(area) {
-			while (area.firstChild) {
-				area.removeChild(area.firstChild);
-			}
+		function clearPracticeArea(area) {
+    		while (area.firstChild) {
+        		area.removeChild(area.firstChild);
+    		}
 		}
 		
-		function displayStimuliInArea(positions, area, colorIndices) {
-			positions.forEach((pos, index) => {
-				const stimulus = document.createElement('div');
-				stimulus.className = 'stimulus';
-				stimulus.style.left = pos.x + 'px';
-				stimulus.style.top = pos.y + 'px';
-				stimulus.style.width = config.stimulusSize + 'px';
-				stimulus.style.height = config.stimulusSize + 'px';
-				stimulus.style.backgroundColor = stimuliColors[colorIndices[index]];
-				area.appendChild(stimulus);
-			});
+		function displayStimuliInPracticeArea(positions, area, colorIndices) {
+    		positions.forEach((pos, index) => {
+        		const stimulus = document.createElement('div');
+        		stimulus.className = 'stimulus';
+        		stimulus.style.left = pos.x + 'px';
+        		stimulus.style.top = pos.y + 'px';
+        		stimulus.style.width = config.stimulusSize + 'px';
+        		stimulus.style.height = config.stimulusSize + 'px';
+        		stimulus.style.backgroundColor = stimuliColors[colorIndices[index]];
+        		area.appendChild(stimulus);
+    		});
 		}
 		
 		// Update the handleTimeout function to handle practice trials
