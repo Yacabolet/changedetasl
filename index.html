@@ -467,7 +467,7 @@
         <!-- Admin Mode Indicator -->
         <div id="adminModeIndicator">ADMIN MODE ACTIVE</div>
         
-        <h1 id="pageTitle">Change Detection Task</h1>
+        <h1 id="pageTitle">Cognitive Task</h1>
         
         <!-- Connection error message -->
         <div id="connectionErrorMessage">
@@ -509,8 +509,8 @@
                 <ol>
                     <li id="instructionsStep1">You will briefly see several colored squares on the screen.</li>
                     <li id="instructionsStep2">The squares will disappear for a moment.</li>
-                    <li id="instructionsStep3">When they reappear, sometimes one or more squares will have moved to a new position, and sometimes all squares will be in the same positions as before.</li>
-                    <li id="instructionsStep4">Your task is to indicate whether you detected a change or not by clicking the appropriate button.</li>
+                    <li id="instructionsStep3">After the squares disappear they will reappear and you need to identify whether there was a change in their position by clicking the appropriate button.</li>
+                    <li id="instructionsStep4">You can press the K key (if you detect a change) or D key (if you don't detect a change) on the keyboard.</li>
                 </ol>
                 <p id="instructionsText3">This experiment consists of 10 trials. Please try to stay focused throughout the experiment.</p>
                 <p id="instructionsText4">Let's begin with some practice trials to make sure you understand the task.</p>
@@ -530,8 +530,8 @@
             <div id="noChangeTrainingArea"></div>
             <div id="noChangeTrainingControls">
                 <button id="startNoChangeTraining">Start Practice Trial</button>
-                <button id="noChangeTrainingYes" disabled>Change Detected (Y)</button>
-                <button id="noChangeTrainingNo" disabled>No Change (N)</button>
+                <button id="noChangeTrainingYes" disabled>Change Detected (K)</button>
+                <button id="noChangeTrainingNo" disabled>No Change (D)</button>
                 <button id="skipNoChangeTrainingButton" class="adminButton skipButton">Skip No-Change Training</button>
             </div>
             <div id="noChangeFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
@@ -546,8 +546,8 @@
             <div id="changeTrainingArea"></div>
             <div id="changeTrainingControls">
                 <button id="startChangeTraining">Start Practice Trial</button>
-                <button id="changeTrainingYes" disabled>Change Detected (Y)</button>
-                <button id="changeTrainingNo" disabled>No Change (N)</button>
+                <button id="changeTrainingYes" disabled>Change Detected (K)</button>
+                <button id="changeTrainingNo" disabled>No Change (D)</button>
                 <button id="skipChangeTrainingButton" class="adminButton skipButton">Skip Change Training</button>
             </div>
             <div id="changeFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
@@ -560,8 +560,8 @@
             <div id="stimuliArea"></div>
             <div id="controls">
                 <button id="startButton">Start Experiment</button>
-                <button id="responseYes" disabled>Change Detected (Y)</button>
-                <button id="responseNo" disabled>No Change (N)</button>
+                <button id="responseYes" disabled>Change Detected (K)</button>
+                <button id="responseNo" disabled>No Change (D)</button>
                 <button id="skipAllTrialsButton" class="adminButton skipButton">Skip All Trials</button>
             </div>
         </div>
@@ -661,7 +661,7 @@
         // Define language dictionary
         const langDict = {
             en: {
-                pageTitle: "Change Detection Task",
+                pageTitle: "Cognitive Task",
                 
                 // Connection error
                 connectionErrorText1: "Unable to connect to Google Sheets.",
@@ -691,8 +691,8 @@
                 instructionsText2: "How it works:",
                 instructionsStep1: "You will briefly see several colored squares on the screen.",
                 instructionsStep2: "The squares will disappear for a moment.",
-                instructionsStep3: "When they reappear, sometimes one or more squares will have moved to a new position, and sometimes all squares will be in the same positions as before.",
-                instructionsStep4: "Your task is to indicate whether you detected a change or not by clicking the appropriate button.",
+                instructionsStep3: "After the squares disappear they will reappear and you need to identify whether there was a change in their position by clicking the appropriate button.",
+                instructionsStep4: "You can press the K key (if you detect a change) or D key (if you don't detect a change) on the keyboard.",
                 instructionsText3: "This experiment consists of 10 trials. Please try to stay focused throughout the experiment.",
                 instructionsText4: "Let's begin with some practice trials to make sure you understand the task.",
 				instructionsText5: "Important: Please respond to each trial both quickly AND accurately. If you take more than 15 seconds to respond to any trial, it will automatically skip to the next trial and count as incorrect.",
@@ -708,8 +708,8 @@
                 noChangeText3: "After they disappear briefly, they will reappear in the exact same positions.",
                 noChangeText4: "When this happens, you should click the \"No Change\" button.",
                 startNoChangeTraining: "Start Practice Trial",
-                noChangeTrainingYes: "Change Detected (Y)",
-                noChangeTrainingNo: "No Change (N)",
+                noChangeTrainingYes: "Change Detected (K)",
+                noChangeTrainingNo: "No Change (D)",
                 noChangeFeedbackCorrect: "Correct! Moving to the next practice trial...",
                 noChangeFeedbackIncorrect: "Incorrect. This was a 'No Change' trial. The squares returned to the same positions. Try again in 5 seconds.",
                 noChangeFeedbackRetry: "Click 'Start Practice Trial' to try again.",
@@ -721,8 +721,8 @@
                 changeText3: "After they disappear briefly, they will reappear with at least one square in a different position.",
                 changeText4: "When this happens, you should click the \"Change Detected\" button.",
                 startChangeTraining: "Start Practice Trial",
-                changeTrainingYes: "Change Detected (Y)",
-                changeTrainingNo: "No Change (N)",
+                changeTrainingYes: "Change Detected (K)",
+                changeTrainingNo: "No Change (D)",
                 changeFeedbackCorrect: "Correct! Moving to the main experiment...",
                 changeFeedbackIncorrect: "Incorrect. This was a 'Change' trial. At least one square moved to a new position. Try again in 5 seconds.",
                 changeFeedbackRetry: "Click 'Start Practice Trial' to try again.",
@@ -730,8 +730,8 @@
                 // Main experiment
                 mainInstructionsText: "Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.",
                 startButton: "Start Experiment",
-                responseYes: "Change Detected (Y)",
-                responseNo: "No Change (N)",
+                responseYes: "Change Detected (K)",
+                responseNo: "No Change (D)",
                 
                 // Results & end screens
                 savingText: "Saving data, please wait...",
@@ -792,11 +792,11 @@
                 adminOverride: "Override (Admin Only)"
             },
             he: {
-                pageTitle: "משימת זיהוי שינויים",
+                pageTitle: "משימה קוגניטיבית",
                 
                 // Connection error
                 connectionErrorText1: "לא ניתן להתחבר ל-Google Sheets.",
-                connectionErrorText2: "אנא השתמש/י בחיבור WiFi או נתונים סלולריים אחר ורענן/י את הדף.",
+                connectionErrorText2: "אנא השתמש/י בחיבור WiFi אחר ורענן/י את הדף.",
                 retryConnectionButton: "נסה חיבור מחדש",
                 
                 // Warnings
@@ -822,10 +822,10 @@
                 instructionsText2: "כיצד זה עובד:",
                 instructionsStep1: "תראה/י מספר ריבועים צבעוניים על המסך לזמן קצר.",
                 instructionsStep2: "הריבועים ייעלמו לרגע.",
-                instructionsStep3: "כשהם יופיעו שוב, לפעמים ריבוע אחד או יותר יזוז למיקום חדש, ולפעמים כל הריבועים יהיו באותם מיקומים כמו קודם.",
-                instructionsStep4: "המשימה שלך היא לציין אם זיהית שינוי או לא על ידי לחיצה על הכפתור המתאים.",
+                instructionsStep3: "לאחר שהריבועים ייעלמו הם יחזרו ועלייך לזהות האם היה שינוי במיקומם בלחיצה על הכפתור המתאים.",
+                instructionsStep4: "ניתן ללחוץ על המקשים K (אם נמצא שינוי) או D (אם לא נמצא שינוי) במקלדת.",
                 instructionsText3: "הניסוי מורכב מ-10 ניסיונות. אנא נסה/י להישאר ממוקד/ת לאורך כל הניסוי.", 
-                instructionsText4: "בואו נתחיל עם כמה ניסיונות אימון כדי לוודא שאת/ה מבין/ה את המשימה.",
+                instructionsText4: "כדי לוודא שאת/ה מבינ/ה את המשימה נעשה כעת אימון ניסיון.",
 			    instructionsText5: "חשוב: אנא השב/י לכל ניסיון במהירות ובדיוק. אם תיקח/י יותר מ-15 שניות להשיב לניסיון כלשהו, הוא יעבור אוטומטית לניסיון הבא וייחשב כתשובה שגויה.",
                 instructionsUnderstoodButton: "אני מבין/ה",
                 instructionsUnderstoodButtonDisabled: "אני מבין/ה (יופעל בעוד 5 שניות)",
@@ -839,8 +839,8 @@
                 noChangeText3: "לאחר שייעלמו לרגע, הם יופיעו מחדש באותם מיקומים בדיוק.",
                 noChangeText4: "כשזה קורה, עליך ללחוץ על כפתור \"אין שינוי\".",
                 startNoChangeTraining: "התחל ניסיון אימון",
-                noChangeTrainingYes: "שינוי זוהה (Y)",
-                noChangeTrainingNo: "אין שינוי (N)",
+                noChangeTrainingYes: "שינוי זוהה (K)",
+                noChangeTrainingNo: "אין שינוי (D)",
                 noChangeFeedbackCorrect: "נכון! עובר/ת לניסיון האימון הבא...",
                 noChangeFeedbackIncorrect: "לא נכון. זה היה ניסיון 'ללא שינוי'. הריבועים חזרו לאותם מיקומים. נסה/י שוב בעוד 5 שניות.",
                 noChangeFeedbackRetry: "לחץ/י על 'התחל ניסיון אימון' כדי לנסות שוב.",
@@ -852,8 +852,8 @@
                 changeText3: "לאחר שייעלמו לרגע, הם יופיעו מחדש כשלפחות ריבוע אחד במיקום שונה.",
                 changeText4: "כשזה קורה, עליך ללחוץ על כפתור \"שינוי זוהה\".",
                 startChangeTraining: "התחל ניסיון אימון",
-                changeTrainingYes: "שינוי זוהה (Y)",
-                changeTrainingNo: "אין שינוי (N)",
+                changeTrainingYes: "שינוי זוהה (K)",
+                changeTrainingNo: "אין שינוי (D)",
                 changeFeedbackCorrect: "נכון! עובר/ת לניסוי העיקרי...",
                 changeFeedbackIncorrect: "לא נכון. זה היה ניסיון 'שינוי'. לפחות ריבוע אחד זז למיקום חדש. נסה/י שוב בעוד 5 שניות.",
                 changeFeedbackRetry: "לחץ/י על 'התחל ניסיון אימון' כדי לנסות שוב.",
@@ -861,8 +861,8 @@
                 // Main experiment
                 mainInstructionsText: "זכור/זכרי את מיקומי הריבועים. לאחר מסך ריק קצר, ציין/י אם ריבוע כלשהו שינה מיקום.",
                 startButton: "התחל ניסוי",
-                responseYes: "שינוי זוהה (Y)",
-                responseNo: "אין שינוי (N)",
+                responseYes: "שינוי זוהה (K)",
+                responseNo: "אין שינוי (D)",
                 
                 // Results & end screens
                 savingText: "שומר נתונים, אנא המתן/י...",
@@ -2649,9 +2649,9 @@
         document.addEventListener('keydown', function(event) {
             if (responseYes.disabled) return;
             
-            if (event.key === 'y' || event.key === 'Y') {
+            if (event.key === 'k' || event.key === 'K') {
                 processResponse('yes');
-            } else if (event.key === 'n' || event.key === 'N') {
+            } else if (event.key === 'd' || event.key === 'D') {
                 processResponse('no');
             }
         });
