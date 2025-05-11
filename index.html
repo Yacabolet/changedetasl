@@ -1495,29 +1495,29 @@
             });
             
 			skipAllTrialsButton.addEventListener('click', function() {
-				log('Admin: Skipped all trials');
-			
-				// Clean up any running timers
-				cleanupTimers();
-			
-				state.currentTrial = config.numTrials;
-				state.correctResponses = config.numTrials; // All correct for admin skip
-				
-				// Fill in placeholder response times for skipped trials
-				state.responseTimes = Array(config.numTrials).fill(0.5); // 0.5 seconds as a placeholder
-				state.timeoutTrials = []; // No timeouts in admin skip
-			
-				experimentComplete();
+    			log('Admin: Skipped all trials');
+			    
+    			// Clean up any running timers
+    			cleanupTimers();
+			    
+    			state.currentTrial = config.numTrials;
+    			state.correctResponses = config.numTrials; // All correct for admin skip
+			    
+    			// Fill in placeholder response times for skipped trials
+    			state.responseTimes = Array(config.numTrials).fill(0.5); // 0.5 seconds as a placeholder
+    			state.timeoutTrials = []; // No timeouts in admin skip
+			    
+    			experimentComplete();
 			});
-		
-			// Move the skipPracticeTrialsButton event listener here, outside of skipAllTrialsButton
+			
+			// Properly place the skipPracticeTrialsButton event listener outside
 			skipPracticeTrialsButton.addEventListener('click', function() {
-				log('Admin: Skipped practice trials');
-				practiceTrialsPage.style.display = 'none';
-				experimentArea.style.display = 'block';
-				initExperiment();
+    			log('Admin: Skipped practice trials');
+    			practiceTrialsPage.style.display = 'none';
+    			experimentArea.style.display = 'block';
+    			initExperiment();
 			});
-			
+						
 			// Clean up any running timers
 			cleanupTimers();
     
@@ -3092,6 +3092,14 @@
         
         retryButton.addEventListener('click', saveResultsToSheet);
 
+		
+		skipPracticeTrialsButton.addEventListener('click', function() {
+			log('Admin: Skipped practice trials');
+			practiceTrialsPage.style.display = 'none';
+			experimentArea.style.display = 'block';
+			initExperiment();
+		});
+        
 		// Practice trials event listeners
 		startPracticeTrial.addEventListener('click', runPracticeTrial);
 		
@@ -3103,13 +3111,6 @@
 			processPracticeResponse('no');
 		});
 		
-		skipPracticeTrialsButton.addEventListener('click', function() {
-			log('Admin: Skipped practice trials');
-			practiceTrialsPage.style.display = 'none';
-			experimentArea.style.display = 'block';
-			initExperiment();
-		});
-        
         // Keyboard shortcuts
 		document.addEventListener('keydown', function(event) {
 			// Check if we're in different phases of the experiment
