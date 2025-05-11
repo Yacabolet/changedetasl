@@ -2646,15 +2646,46 @@
         retryButton.addEventListener('click', saveResultsToSheet);
 
         // Keyboard shortcuts
-        document.addEventListener('keydown', function(event) {
-            if (responseYes.disabled) return;
-            
-            if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
-                processResponse('yes');
-            } else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
-                processResponse('no');
-            }
-        });
+        // Keyboard shortcuts
+		document.addEventListener('keydown', function(event) {
+			// Check if we're in different phases of the experiment
+    
+			// During main experiment
+			if (!responseYes.disabled) {
+				if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
+					processResponse('yes');
+				} else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
+					processResponse('no');
+				}
+			}
+    
+			// During no-change training
+			if (!noChangeTrainingYes.disabled) {
+				if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
+					noChangeTrainingYes.click();
+				} else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
+					noChangeTrainingNo.click();
+				}
+			}
+    
+			// During change training
+			if (!changeTrainingYes.disabled) {
+				if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
+					changeTrainingYes.click();
+				} else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
+					changeTrainingNo.click();
+				}
+			}
+    
+			// During practice trials (we'll add this section when implementing practice trials)
+			if (!practiceYes.disabled) {
+				if (event.key === 'k' || event.key === 'K' || event.key === 'ל') {
+					practiceYes.click();
+				} else if (event.key === 'd' || event.key === 'D' || event.key === 'ג') {
+					practiceNo.click();
+				}
+			}
+		});
     </script>
 </body>
 </html>
