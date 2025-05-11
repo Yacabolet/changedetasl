@@ -163,6 +163,32 @@
             text-align: left;
         }
         
+		#practiceArea {
+			margin: 20px auto;
+			width: 90%;
+			max-width: 600px;
+			height: 400px;
+			border: 1px solid #ccc;
+			position: relative;
+			background-color: #f5f5f5;
+		}
+		
+		#practiceControls {
+			margin: 20px;
+		}
+		
+		#practiceTrialNumber {
+			text-align: center;
+			font-size: 18px;
+			margin: 10px 0;
+		}
+		
+		@media screen and (max-width: 768px) {
+			#practiceArea {
+				height: 350px;
+			}
+		}
+		
         /* New Admin Control Panel styles */
         #controlPanelButton {
             position: fixed;
@@ -553,6 +579,23 @@
             <div id="changeFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
         </div>
         
+		<div id="practiceTrialsPage" style="display:none;">
+			<h2 id="practiceTitle">Practice Trials</h2>
+			<p id="practiceText1">Now you'll complete 3 practice trials to make sure you understand the task.</p>
+			<p id="practiceText2">Some squares may change position, some may not. Use your best judgment.</p>
+			<p id="practiceText3">You must correctly identify all 3 trials to continue to the main experiment.</p>
+			<p id="practiceText4">Remember: You have 15 seconds to respond to each trial.</p>
+			<div id="practiceTrialNumber" style="font-weight: bold; margin: 10px 0;">Trial 1 of 3</div>
+			<div id="practiceArea"></div>
+			<div id="practiceControls">
+				<button id="startPracticeTrial">Start Practice Trial</button>
+				<button id="practiceYes" disabled>Change Detected (K)</button>
+				<button id="practiceNo" disabled>No Change (D)</button>
+				<button id="skipPracticeTrialsButton" class="adminButton skipButton">Skip Practice Trials</button>
+			</div>
+			<div id="practiceFeedback" style="margin-top: 20px; font-weight: bold; display: none;"></div>
+		</div>
+		
         <div id="experimentArea" style="display:none;">
             <div id="instructions">
                 <p id="mainInstructionsText">Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.</p>
@@ -714,7 +757,7 @@
                 noChangeFeedbackIncorrect: "Incorrect. This was a 'No Change' trial. The squares returned to the same positions. Try again in 5 seconds.",
                 noChangeFeedbackRetry: "Click 'Start Practice Trial' to try again.",
                 
-                // Change training
+				// Change training
                 changeTitle: "Practice Trial: Change",
                 changeText1: "In this practice, you will see an example where one or more squares CHANGE position.",
                 changeText2: "First, several colored squares will appear. Try to remember their positions.",
@@ -726,6 +769,22 @@
                 changeFeedbackCorrect: "Correct! Moving to the main experiment...",
                 changeFeedbackIncorrect: "Incorrect. This was a 'Change' trial. At least one square moved to a new position. Try again in 5 seconds.",
                 changeFeedbackRetry: "Click 'Start Practice Trial' to try again.",
+				
+				// Practice trials
+				practiceTitle: "Practice Trials",
+				practiceText1: "Now you'll complete 3 practice trials to make sure you understand the task.",
+				practiceText2: "Some squares may change position, some may not. Use your best judgment.",
+				practiceText3: "You must correctly identify all 3 trials to continue to the main experiment.",
+				practiceText4: "Remember: You have 15 seconds to respond to each trial.",
+				startPracticeTrial: "Start Practice Trial",
+				practiceYes: "Change Detected (K)",
+				practiceNo: "No Change (D)",
+				practiceTrialNumber: "Trial {0} of 3",
+				practiceFeedbackCorrect: "Correct! Moving to next trial...",
+				practiceFeedbackIncorrect: "Incorrect. Try again after 5 seconds.",
+				practiceFeedbackComplete: "All practice trials completed! Starting main experiment...",
+				practiceFeedbackRetry: "Some trials were incorrect. Let's try all 3 again after 5 seconds.",
+				skipPracticeTrialsButton: "Skip Practice Trials",
                 
                 // Main experiment
                 mainInstructionsText: "Remember the positions of the squares. After a brief blank screen, indicate if any square changed position.",
@@ -858,6 +917,22 @@
                 changeFeedbackIncorrect: "לא נכון. זה היה ניסיון 'שינוי'. לפחות ריבוע אחד זז למיקום חדש. נסה/י שוב בעוד 5 שניות.",
                 changeFeedbackRetry: "לחץ/י על 'התחל ניסיון אימון' כדי לנסות שוב.",
                 
+				// Practice trials
+				practiceTitle: "ניסיונות אימון",
+				practiceText1: "כעת תשלים/י 3 ניסיונות אימון כדי לוודא שאת/ה מבין/ה את המשימה.",
+				practiceText2: "חלק מהריבועים עלולים לשנות מיקום, חלקם לא. השתמש/י בשיקול הדעת שלך.",
+				practiceText3: "עליך לזהות נכון את כל 3 הניסיונות כדי להמשיך לניסוי העיקרי.",
+				practiceText4: "זכור/י: יש לך 15 שניות להגיב לכל ניסיון.",
+				startPracticeTrial: "התחל ניסיון אימון",
+				practiceYes: "שינוי זוהה (K)",
+				practiceNo: "אין שינוי (D)",
+				practiceTrialNumber: "ניסיון {0} מתוך 3",
+				practiceFeedbackCorrect: "נכון! עובר/ת לניסיון הבא...",
+				practiceFeedbackIncorrect: "לא נכון. נסה/י שוב בעוד 5 שניות.",
+				practiceFeedbackComplete: "כל ניסיונות האימון הושלמו! מתחיל/ה את הניסוי העיקרי...",
+				practiceFeedbackRetry: "חלק מהניסיונות היו שגויים. ננסה את כל 3 הניסיונות שוב בעוד 5 שניות.",
+				skipPracticeTrialsButton: "דלג על ניסיונות אימון",
+				
                 // Main experiment
                 mainInstructionsText: "זכור/זכרי את מיקומי הריבועים. לאחר מסך ריק קצר, ציין/י אם ריבוע כלשהו שינה מיקום.",
                 startButton: "התחל ניסוי",
@@ -1026,6 +1101,17 @@
             updateText("changeTrainingYes", "changeTrainingYes");
             updateText("changeTrainingNo", "changeTrainingNo");
             
+			// Add these to the updateLanguage function:
+			updateText("practiceTitle", "practiceTitle");
+			updateText("practiceText1", "practiceText1");
+			updateText("practiceText2", "practiceText2");
+			updateText("practiceText3", "practiceText3");
+			updateText("practiceText4", "practiceText4");
+			updateText("startPracticeTrial", "startPracticeTrial");
+			updateText("practiceYes", "practiceYes");
+			updateText("practiceNo", "practiceNo");
+			updateText("skipPracticeTrialsButton", "skipPracticeTrialsButton");
+			
             // Main experiment
             updateText("mainInstructionsText", "mainInstructionsText");
             updateText("startButton", "startButton");
@@ -1141,6 +1227,17 @@
         const retryConnectionButton = document.getElementById('retryConnectionButton');
         const completionCodeElement = document.getElementById('completionCode');
         const copyCodeButton = document.getElementById('copyCodeButton');
+		
+		// Practice trials elements
+		const practiceTrialsPage = document.getElementById('practiceTrialsPage');
+		const practiceArea = document.getElementById('practiceArea');
+		const practiceControls = document.getElementById('practiceControls');
+		const startPracticeTrial = document.getElementById('startPracticeTrial');
+		const practiceYes = document.getElementById('practiceYes');
+		const practiceNo = document.getElementById('practiceNo');
+		const practiceFeedback = document.getElementById('practiceFeedback');
+		const practiceTrialNumber = document.getElementById('practiceTrialNumber');
+		const skipPracticeTrialsButton = document.getElementById('skipPracticeTrialsButton');
         
         // New instruction pages elements
         const instructionsPage = document.getElementById('instructionsPage');
@@ -1260,6 +1357,11 @@
             dataSaved: false,
             sameIdDifferentDevice: false,
             stimuliColorIndices: [],
+			practiceTrials: [],
+			currentPracticeTrial: 0,
+			practiceCorrect: 0,
+			practiceAttempt: 0,
+			isPracticeRunning: false,
             responseTimes: [], // Array to store response times for each trial
             timeoutTrials: [], // Array to track which trials timed out
             trialStartTime: 0, // Timestamp when the trial starts
@@ -1392,9 +1494,17 @@
                 initExperiment();
             });
             
-        skipAllTrialsButton.addEventListener('click', function() {
-			log('Admin: Skipped all trials');
-    
+			skipAllTrialsButton.addEventListener('click', function() {
+				log('Admin: Skipped all trials');
+			
+			// Add this to the initAdminControls function, after the other skip button event listeners:
+			skipPracticeTrialsButton.addEventListener('click', function() {
+    			log('Admin: Skipped practice trials');
+    			practiceTrialsPage.style.display = 'none';
+    			experimentArea.style.display = 'block';
+    			initExperiment();
+			});
+			
 			// Clean up any running timers
 			cleanupTimers();
     
@@ -2143,26 +2253,25 @@
         // Event listeners for change training
         startChangeTraining.addEventListener('click', runChangeTraining);
         
-        changeTrainingYes.addEventListener('click', function() {
-            // Disable response buttons
-            changeTrainingYes.disabled = true;
-            changeTrainingNo.disabled = true;
-            
-            // Show correct feedback
-            changeFeedback.textContent = langDict[currentLang].changeFeedbackCorrect;
-            changeFeedback.style.color = 'green';
-            changeFeedback.style.display = 'block';
-            
-            log('Change training: correct response ("yes")');
-            
-            // Move to main experiment after 2 seconds
-            setTimeout(function() {
-                changeTrainingPage.style.display = 'none';
-                experimentArea.style.display = 'block';
-                initExperiment();
-            }, 2000);
-        });
-        
+        // Replace the changeTrainingYes event listener with:
+		changeTrainingYes.addEventListener('click', function() {
+			changeTrainingYes.disabled = true;
+			changeTrainingNo.disabled = true;
+			
+			changeFeedback.textContent = langDict[currentLang].changeFeedbackCorrect;
+			changeFeedback.style.color = 'green';
+			changeFeedback.style.display = 'block';
+			
+			log('Change training: correct response ("yes")');
+			
+			// Move to practice trials after 2 seconds
+			setTimeout(function() {
+				changeTrainingPage.style.display = 'none';
+				practiceTrialsPage.style.display = 'block';
+				initPracticeTrials();
+			}, 2000);
+		});
+			
         changeTrainingNo.addEventListener('click', function() {
             // Disable response buttons
             changeTrainingYes.disabled = true;
@@ -2206,9 +2315,283 @@
             });
         }
 
-        // Initialize the experiment
-        function initExperiment() {
-            state.currentTrial = 0;
+		// Practice trials implementation
+		function initPracticeTrials() {
+			state.practiceTrials = [];
+			state.currentPracticeTrial = 0;
+			state.practiceCorrect = 0;
+			state.practiceAttempt = 0;
+			
+			// Generate 3 practice trials (mix of change and no-change)
+			for (let i = 0; i < 3; i++) {
+				state.practiceTrials.push({
+					hasChange: Math.random() < 0.5, // 50% chance of change
+					positions: [],
+					testPositions: [],
+					colorIndices: []
+				});
+			}
+			
+			updatePracticeTrialNumber();
+		}
+		
+		function runPracticeTrial() {
+			if (state.currentPracticeTrial >= 3) {
+				completePracticeTrials();
+				return;
+			}
+			
+			state.isPracticeRunning = true;
+			startPracticeTrial.disabled = true;
+			practiceFeedback.style.display = 'none';
+			
+			const trial = state.practiceTrials[state.currentPracticeTrial];
+			
+			// Generate random positions
+			trial.positions = [];
+			for (let i = 0; i < config.numStimuli; i++) {
+				const x = Math.random() * config.maxPos * (practiceArea.offsetWidth - config.stimulusSize);
+				const y = Math.random() * config.maxPos * (practiceArea.offsetHeight - config.stimulusSize);
+				trial.positions.push({ x, y });
+			}
+			
+			// Generate random colors
+			trial.colorIndices = [];
+			const shuffledIndices = [...Array(stimuliColors.length).keys()];
+			for (let i = shuffledIndices.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+			}
+			for (let i = 0; i < config.numStimuli; i++) {
+				trial.colorIndices.push(shuffledIndices[i % shuffledIndices.length]);
+			}
+			
+			// Display initial stimuli
+			clearStimuliArea(practiceArea);
+			displayStimuliInArea(trial.positions, practiceArea, trial.colorIndices);
+			
+			log(`Practice trial ${state.currentPracticeTrial + 1}: ${trial.hasChange ? 'Change' : 'No change'}`);
+			
+			// After study time, blank screen
+			setTimeout(() => {
+				clearStimuliArea(practiceArea);
+				
+				// After blank time, show test stimuli
+				setTimeout(() => {
+					trial.testPositions = [...trial.positions];
+					
+					if (trial.hasChange) {
+						// Apply changes (same logic as main experiment)
+						const numObjectsToMove = Math.floor(Math.random() * 
+							(config.maxObjectsToMove - config.minObjectsToMove + 1)) + config.minObjectsToMove;
+						
+						const isSwapping = Math.random() < config.swapProbability;
+						
+						if (isSwapping && numObjectsToMove === 2) {
+							const indices = getRandomIndices(config.numStimuli, 2);
+							const temp = { ...trial.testPositions[indices[0]] };
+							trial.testPositions[indices[0]] = { ...trial.testPositions[indices[1]] };
+							trial.testPositions[indices[1]] = temp;
+						} else {
+							const indices = getRandomIndices(config.numStimuli, numObjectsToMove);
+							indices.forEach(index => {
+								const oldPos = trial.testPositions[index];
+								let newPos;
+								let distance;
+								let attempts = 0;
+								
+								do {
+									const newX = Math.random() * config.maxPos * (practiceArea.offsetWidth - config.stimulusSize);
+									const newY = Math.random() * config.maxPos * (practiceArea.offsetHeight - config.stimulusSize);
+									newPos = { x: newX, y: newY };
+									
+									distance = Math.sqrt(
+										Math.pow(newPos.x - oldPos.x, 2) + 
+										Math.pow(newPos.y - oldPos.y, 2)
+									);
+									
+									attempts++;
+									if (attempts > 100) break;
+								} while (
+									distance < config.minMoveDistance() || 
+									distance > config.maxMoveDistance()
+								);
+								
+								trial.testPositions[index] = newPos;
+							});
+						}
+					}
+					
+					// Display test stimuli
+					displayStimuliInArea(trial.testPositions, practiceArea, trial.colorIndices);
+					
+					// Enable responses and start timer
+					practiceYes.disabled = false;
+					practiceNo.disabled = false;
+					startResponseTimer(); // Use the existing timer function
+					
+				}, config.blankTime);
+			}, config.studyTime);
+		}
+		
+		function processPracticeResponse(response) {
+			if (!state.isPracticeRunning) return;
+			
+			// Clear the timeout
+			clearTimeout(state.trialTimeout);
+			cleanupTimers();
+			
+			practiceYes.disabled = true;
+			practiceNo.disabled = true;
+			state.isPracticeRunning = false;
+			
+			const trial = state.practiceTrials[state.currentPracticeTrial];
+			const isCorrect = (response === 'yes' && trial.hasChange) || 
+							(response === 'no' && !trial.hasChange);
+			
+			if (isCorrect) {
+				state.practiceCorrect++;
+				practiceFeedback.textContent = langDict[currentLang].practiceFeedbackCorrect;
+				practiceFeedback.style.color = 'green';
+				practiceFeedback.style.display = 'block';
+				
+				state.currentPracticeTrial++;
+				
+				if (state.currentPracticeTrial < 3) {
+					updatePracticeTrialNumber();
+					setTimeout(() => {
+						practiceFeedback.style.display = 'none';
+						startPracticeTrial.disabled = false;
+					}, 1500);
+				} else {
+					// All trials completed
+					setTimeout(completePracticeTrials, 1500);
+				}
+			} else {
+				practiceFeedback.textContent = langDict[currentLang].practiceFeedbackIncorrect;
+				practiceFeedback.style.color = 'red';
+				practiceFeedback.style.display = 'block';
+				
+				// After 5 seconds, restart all practice trials
+				setTimeout(retryAllPracticeTrials, 5000);
+			}
+			
+			log(`Practice trial ${state.currentPracticeTrial + 1}: User responded "${response}", ${isCorrect ? 'correct' : 'incorrect'}`);
+		}
+		
+		function handlePracticeTimeout() {
+			if (!state.isPracticeRunning) return;
+			
+			// Show timeout message
+			timeoutMessage.style.display = 'block';
+			
+			// Process as incorrect
+			practiceYes.disabled = true;
+			practiceNo.disabled = true;
+			state.isPracticeRunning = false;
+			
+			log(`Practice trial ${state.currentPracticeTrial + 1}: Timeout`);
+			
+			setTimeout(() => {
+				timeoutMessage.style.display = 'none';
+				practiceFeedback.textContent = langDict[currentLang].practiceFeedbackIncorrect;
+				practiceFeedback.style.color = 'red';
+				practiceFeedback.style.display = 'block';
+				
+				setTimeout(retryAllPracticeTrials, 5000);
+			}, 1500);
+		}
+		
+		function retryAllPracticeTrials() {
+			practiceFeedback.textContent = langDict[currentLang].practiceFeedbackRetry;
+			practiceFeedback.style.color = 'red';
+			
+			setTimeout(() => {
+				// Reset practice trials
+				state.currentPracticeTrial = 0;
+				state.practiceCorrect = 0;
+				state.practiceAttempt++;
+				
+				// Generate new practice trials
+				initPracticeTrials();
+				
+				practiceFeedback.style.display = 'none';
+				startPracticeTrial.disabled = false;
+			}, 5000);
+		}
+		
+		function completePracticeTrials() {
+			practiceFeedback.textContent = langDict[currentLang].practiceFeedbackComplete;
+			practiceFeedback.style.color = 'green';
+			
+			setTimeout(() => {
+				practiceTrialsPage.style.display = 'none';
+				experimentArea.style.display = 'block';
+				initExperiment();
+			}, 3000);
+		}
+		
+		function updatePracticeTrialNumber() {
+			practiceTrialNumber.textContent = langDict[currentLang].practiceTrialNumber.replace('{0}', state.currentPracticeTrial + 1);
+		}
+		
+		// Helper functions for practice trials
+		function clearStimuliArea(area) {
+			while (area.firstChild) {
+				area.removeChild(area.firstChild);
+			}
+		}
+		
+		function displayStimuliInArea(positions, area, colorIndices) {
+			positions.forEach((pos, index) => {
+				const stimulus = document.createElement('div');
+				stimulus.className = 'stimulus';
+				stimulus.style.left = pos.x + 'px';
+				stimulus.style.top = pos.y + 'px';
+				stimulus.style.width = config.stimulusSize + 'px';
+				stimulus.style.height = config.stimulusSize + 'px';
+				stimulus.style.backgroundColor = stimuliColors[colorIndices[index]];
+				area.appendChild(stimulus);
+			});
+		}
+		
+		// Update the handleTimeout function to handle practice trials
+		// Replace the existing handleTimeout function with:
+		function handleTimeout() {
+			if (!state.isRunning && !state.isPracticeRunning) return;
+			
+			if (state.isPracticeRunning) {
+				handlePracticeTimeout();
+				return;
+			}
+			
+			// Original timeout handling for main experiment
+			timeoutMessage.style.display = 'block';
+			disableResponses();
+			state.isRunning = false;
+			
+			state.responseTimes.push(config.responseTimeLimit / 1000);
+			state.timeoutTrials.push(state.currentTrial);
+			state.currentTrial++;
+			
+			log(`Trial ${state.currentTrial}: Timeout - no response within ${config.responseTimeLimit / 1000} seconds`);
+			
+			updateResults();
+			
+			setTimeout(() => {
+				timeoutMessage.style.display = 'none';
+				
+				if (state.currentTrial >= config.numTrials) {
+					experimentComplete();
+				} else {
+					setTimeout(startTrial, 1000);
+				}
+			}, 1500);
+		}
+		
+		// Initialize the experiment
+		function initExperiment() {
+			state.currentTrial = 0;
             state.correctResponses = 0;
             state.dataSaved = false;
             
