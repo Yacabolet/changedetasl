@@ -1,4 +1,4 @@
-// Local storage management and participation tracking
+// Updated storage.js - Session-only admin authentication
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -6,9 +6,12 @@ const STORAGE_KEYS = {
     devices: 'changeDetectionDevices',
     participantDeviceMap: 'changeDetectionParticipantDeviceMap',
     deviceId: 'changeDetectionDeviceId',
-    adminMode: 'changeDetectionAdminMode',
-    adminModeActive: 'changeDetectionAdminModeActive'
+    // Remove persistent admin storage keys - they'll be session-only now
+    adminModeActive: 'changeDetectionAdminModeActive' // Only store admin mode active state
 };
+
+// Session-only admin authentication (not persisted across page loads)
+let sessionAdminAuthenticated = false;
 
 // Participation tracking functions
 function checkPreviousParticipation(participantId) {
@@ -86,33 +89,41 @@ function setStoredDeviceId(deviceId) {
     return true;
 }
 
-// Admin state management
+// Session-only admin state management
 function getStoredAdminState() {
     if (!window.ExperimentUtils.isLocalStorageAvailable()) {
         return { authenticated: false, active: false };
     }
     
-    const authenticated = localStorage.getItem(STORAGE_KEYS.adminMode) === 'true';
+    // Admin authentication is now session-only (never persisted)
+    const authenticated = sessionAdminAuthenticated;
+    
+    // Admin mode active state can still be persisted (but requires re-authentication)
     const active = localStorage.getItem(STORAGE_KEYS.adminModeActive) === 'true';
     
     return { authenticated, active };
 }
 
 function setStoredAdminState(authenticated, active) {
-    if (!window.ExperimentUtils.isLocalStorageAvailable()) {
-        console.warn('Local storage not available - cannot store admin state');
-        return false;
-    }
-    
+    // Admin authentication is session-only
     if (typeof authenticated === 'boolean') {
-        localStorage.setItem(STORAGE_KEYS.adminMode, authenticated.toString());
+        sessionAdminAuthenticated = authenticated;
+        console.log('Session admin authentication set to:', authenticated);
     }
     
-    if (typeof active === 'boolean') {
+    // Admin mode active state can be persisted
+    if (typeof active === 'boolean' && window.ExperimentUtils.isLocalStorageAvailable()) {
         localStorage.setItem(STORAGE_KEYS.adminModeActive, active.toString());
+        console.log('Admin mode active state persisted:', active);
     }
     
     return true;
+}
+
+// Clear admin session (called on page unload)
+function clearAdminSession() {
+    sessionAdminAuthenticated = false;
+    console.log('Admin session cleared');
 }
 
 // Clear functions
@@ -136,10 +147,13 @@ function clearAdminData() {
         return false;
     }
     
-    localStorage.removeItem(STORAGE_KEYS.adminMode);
+    // Clear session admin auth
+    sessionAdminAuthenticated = false;
+    
+    // Clear persisted admin mode state
     localStorage.removeItem(STORAGE_KEYS.adminModeActive);
     
-    console.log('Cleared admin data from local storage');
+    console.log('Cleared admin data from both session and local storage');
     return true;
 }
 
@@ -149,12 +163,15 @@ function clearAllStorageData() {
         return false;
     }
     
+    // Clear session admin auth
+    sessionAdminAuthenticated = false;
+    
     // Clear all experiment-related data
     Object.values(STORAGE_KEYS).forEach(key => {
         localStorage.removeItem(key);
     });
     
-    console.log('Cleared all experiment data from local storage');
+    console.log('Cleared all experiment data from local storage and session');
     return true;
 }
 
@@ -169,6 +186,9 @@ function getAllStoredData() {
         const value = localStorage.getItem(key);
         data[name] = value ? (value.startsWith('[') || value.startsWith('{') ? JSON.parse(value) : value) : null;
     });
+    
+    // Add session admin auth status
+    data.sessionAdminAuthenticated = sessionAdminAuthenticated;
     
     return data;
 }
@@ -187,7 +207,7 @@ function getStorageStatistics() {
         totalParticipants: participants.length,
         totalDevices: devices.length,
         totalMappings: Object.keys(participantDeviceMap).length,
-        isAdminAuthenticated: localStorage.getItem(STORAGE_KEYS.adminMode) === 'true',
+        isAdminAuthenticated: sessionAdminAuthenticated, // Session-only
         isAdminModeActive: localStorage.getItem(STORAGE_KEYS.adminModeActive) === 'true'
     };
 }
@@ -232,10 +252,10 @@ function importStorageData(jsonString) {
             return { success: false, error: 'Invalid import format' };
         }
         
-        // Clear existing data
+        // Clear existing data (except session auth)
         clearAllStorageData();
         
-        // Import new data
+        // Import new data (session auth remains cleared)
         Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
             const value = importData.data[name];
             if (value !== null && value !== undefined) {
@@ -250,6 +270,22 @@ function importStorageData(jsonString) {
     }
 }
 
+// Setup page unload handlers to clear admin session
+function setupAdminSessionClearing() {
+    // Clear admin session on page unload
+    window.addEventListener('beforeunload', clearAdminSession);
+    window.addEventListener('unload', clearAdminSession);
+    
+    // Also clear on page visibility change (when tab becomes hidden)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            clearAdminSession();
+        }
+    });
+    
+    console.log('Admin session clearing handlers setup complete');
+}
+
 // Export all storage functions
 window.ExperimentStorage = {
     STORAGE_KEYS,
@@ -259,6 +295,7 @@ window.ExperimentStorage = {
     setStoredDeviceId,
     getStoredAdminState,
     setStoredAdminState,
+    clearAdminSession,
     clearParticipantData,
     clearAdminData,
     clearAllStorageData,
@@ -266,5 +303,6 @@ window.ExperimentStorage = {
     getStorageStatistics,
     validateParticipantId,
     exportStorageData,
-    importStorageData
+    importStorageData,
+    setupAdminSessionClearing
 };

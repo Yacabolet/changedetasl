@@ -1,14 +1,14 @@
-// Complete admin.js file with all functions and proper exports
+// Updated admin.js - Session-only authentication
 
 // Admin state management
 function initAdminControls() {
-    // Check stored admin states
+    // Check stored admin states - authentication is now session-only
     const storedState = window.ExperimentStorage.getStoredAdminState();
-    if (storedState.authenticated) {
-        window.ExperimentConfig.isAdminAuthenticated = true;
-        toggleControlOptions(true);
-    }
     
+    // Admin authentication is never restored from storage (session-only)
+    window.ExperimentConfig.isAdminAuthenticated = false;
+    
+    // Admin mode active state can be restored, but requires re-authentication to access
     if (storedState.active) {
         window.ExperimentConfig.isAdminModeActive = true;
         const adminModeToggle = document.getElementById('adminModeToggle');
@@ -20,11 +20,14 @@ function initAdminControls() {
         updateAdminUI();
     }
     
+    // Always show login section on page load
+    toggleControlOptions(false);
+    
     setupAdminEventListeners();
     updateAdminUI();
     
     if (window.ExperimentLogger) {
-        window.ExperimentLogger.log('Admin controls initialized');
+        window.ExperimentLogger.log('Admin controls initialized (session-only authentication)');
     }
 }
 
@@ -65,6 +68,10 @@ function setupAdminEventListeners() {
     
     if (clearSheetButton) {
         clearSheetButton.addEventListener('click', function() {
+            if (!window.ExperimentConfig.isAdminAuthenticated) {
+                alert('Please authenticate first');
+                return;
+            }
             showConfirmation(
                 window.LanguageManager ? window.LanguageManager.getText('clearSheetConfirmTitle') : 'Clear Google Sheet?',
                 window.LanguageManager ? window.LanguageManager.getText('clearSheetConfirmMessage') : 'This will remove ALL data from the Google Sheet. This action cannot be undone!',
@@ -75,6 +82,10 @@ function setupAdminEventListeners() {
     
     if (clearLocalStorageButton) {
         clearLocalStorageButton.addEventListener('click', function() {
+            if (!window.ExperimentConfig.isAdminAuthenticated) {
+                alert('Please authenticate first');
+                return;
+            }
             showConfirmation(
                 window.LanguageManager ? window.LanguageManager.getText('clearLocalStorageConfirmTitle') : 'Clear Local Storage?',
                 window.LanguageManager ? window.LanguageManager.getText('clearLocalStorageConfirmMessage') : 'This will remove all stored participant IDs and device IDs, allowing them to be reused.',
@@ -102,6 +113,11 @@ function setupAdminEventListeners() {
     
     // Setup skip button listeners
     setupSkipButtonListeners();
+    
+    // Setup session clearing handlers
+    if (window.ExperimentStorage) {
+        window.ExperimentStorage.setupAdminSessionClearing();
+    }
 }
 
 function setupSkipButtonListeners() {
@@ -117,7 +133,13 @@ function setupSkipButtonListeners() {
     skipButtons.forEach(({ id, action }) => {
         const button = document.getElementById(id);
         if (button) {
-            button.addEventListener('click', action);
+            button.addEventListener('click', function() {
+                if (!window.ExperimentConfig.isAdminAuthenticated) {
+                    alert('Please authenticate first');
+                    return;
+                }
+                action();
+            });
         }
     });
 }
@@ -137,7 +159,7 @@ function closeControlPanel() {
     }
 }
 
-// Updated authentication functions with server-side verification
+// Updated authentication functions with session-only storage
 async function attemptAdminLogin() {
     const adminPassword = document.getElementById('adminPassword');
     const loginError = document.getElementById('loginError');
@@ -163,16 +185,22 @@ async function attemptAdminLogin() {
         
         if (authResponse.success) {
             window.ExperimentConfig.isAdminAuthenticated = true;
+            
+            // Store authentication in session-only storage
             if (window.ExperimentStorage) {
                 window.ExperimentStorage.setStoredAdminState(true, null);
             }
+            
             toggleControlOptions(true);
             
             if (loginError) loginError.style.display = 'none';
             
             if (window.ExperimentLogger) {
-                window.ExperimentLogger.log('Admin login successful');
+                window.ExperimentLogger.log('Admin login successful (session-only)');
             }
+            
+            // Show session message
+            showSessionMessage();
         } else {
             showLoginError('Incorrect password');
             
@@ -195,6 +223,39 @@ async function attemptAdminLogin() {
                 window.LanguageManager.getText('loginButton') : 'Login';
         }
     }
+}
+
+// Show message about session-only authentication
+function showSessionMessage() {
+    // Create or update session message
+    let sessionMsg = document.getElementById('adminSessionMessage');
+    if (!sessionMsg) {
+        sessionMsg = document.createElement('div');
+        sessionMsg.id = 'adminSessionMessage';
+        sessionMsg.style.cssText = `
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        `;
+        
+        const controlOptions = document.getElementById('controlOptions');
+        if (controlOptions) {
+            controlOptions.insertBefore(sessionMsg, controlOptions.firstChild);
+        }
+    }
+    
+    sessionMsg.textContent = '⚠️ Admin access is session-only. You\'ll need to re-authenticate after page refresh.';
+    sessionMsg.style.display = 'block';
+    
+    // Hide message after 5 seconds
+    setTimeout(() => {
+        if (sessionMsg) sessionMsg.style.display = 'none';
+    }, 5000);
 }
 
 // Send authentication request to server
@@ -263,6 +324,13 @@ function toggleControlOptions(showOptions) {
 
 // Admin mode toggle
 function toggleAdminMode(isActive) {
+    if (!window.ExperimentConfig.isAdminAuthenticated && isActive) {
+        alert('Please authenticate first');
+        const adminModeToggle = document.getElementById('adminModeToggle');
+        if (adminModeToggle) adminModeToggle.checked = false;
+        return;
+    }
+    
     window.ExperimentConfig.isAdminModeActive = isActive;
     if (window.ExperimentStorage) {
         window.ExperimentStorage.setStoredAdminState(null, isActive);
@@ -276,22 +344,23 @@ function toggleAdminMode(isActive) {
     updateAdminUI();
     
     if (window.ExperimentLogger) {
-        window.ExperimentLogger.log('Admin mode ' + (isActive ? 'activated' : 'deactivated'));
+        window.ExperimentLogger.log('Admin mode ' + (isActive ? 'activated' : 'deactivated') + ' (session-only)');
     }
 }
 
 function updateAdminUI() {
     const isActive = window.ExperimentConfig.isAdminModeActive;
+    const isAuthenticated = window.ExperimentConfig.isAdminAuthenticated;
     
-    // Update skip buttons visibility
+    // Update skip buttons visibility (only if authenticated)
     const skipButtons = document.querySelectorAll('.skipButton');
     skipButtons.forEach(button => {
-        button.style.display = isActive ? 'block' : 'none';
+        button.style.display = (isActive && isAuthenticated) ? 'block' : 'none';
     });
     
     // Update bypass button
     const bypassButton = document.getElementById('bypassIdCheckButton');
-    if (bypassButton) bypassButton.style.display = isActive ? 'block' : 'none';
+    if (bypassButton) bypassButton.style.display = (isActive && isAuthenticated) ? 'block' : 'none';
     
     // Update debug info display
     const debugInfo = document.getElementById('debugInfo');
@@ -302,7 +371,7 @@ function updateAdminUI() {
     if (timerDisplay) timerDisplay.style.display = isActive ? 'block' : 'none';
 }
 
-// Skip functions
+// Skip functions (now require authentication)
 function skipInstructions() {
     if (window.ExperimentLogger) {
         window.ExperimentLogger.log('Admin: Skipped instructions');
@@ -490,6 +559,7 @@ function getAdminStatus() {
     return {
         authenticated: window.ExperimentConfig.isAdminAuthenticated,
         active: window.ExperimentConfig.isAdminModeActive,
+        sessionOnly: true, // Indicate this is session-only
         features: {
             skipButtons: true,
             bypassChecks: true,
@@ -506,7 +576,7 @@ function logAdminAction(action, details = {}) {
     }
 }
 
-// Export all admin functions - THIS IS CRUCIAL
+// Export all admin functions
 window.ExperimentAdmin = {
     initAdminControls,
     setupAdminEventListeners,
@@ -515,6 +585,7 @@ window.ExperimentAdmin = {
     closeControlPanel,
     attemptAdminLogin,
     sendAuthenticationRequest,
+    showSessionMessage,
     showLoginError,
     toggleControlOptions,
     toggleAdminMode,
