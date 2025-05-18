@@ -158,8 +158,12 @@ const langDict = {
         
         // Email verification for sheet clearing
         emailVerificationConfirmMessage: "This will clear ALL data from the Google Sheet. A verification code will be sent to your email. Continue?",
-        reenterPasswordPrompt: "Please re-enter your admin password",
+        reenterPasswordPrompt: "Please re-enter your admin password:",
+        passwordRequired: "Password is required to proceed",
+        sendingCode: "Sending code...",
+        codeSenatToEmail: "Verification code sent to your email!",
         emailSendFailed: "Failed to send verification email",
+        errorInitiatingClear: "Error initiating clear sheet: ",
         verificationCodeTitle: "Email Verification Required",
         verificationCodeMessage: "A 6-digit verification code has been sent to your email. Please enter it below:",
         verificationCodeExpiry: "Code expires in 5 minutes",
@@ -195,7 +199,7 @@ const langDict = {
         
         // Instructions page
         instructionsTitle: "הוראות הניסוי",
-        instructionsText1: "ברוכים/ברוכות הבאים/באות למשימה הקוגניטיבית של הניסוי שלנו.",
+        instructionsText1: "ברוכים/ברוכות הבאים למשימה הקוגניטיבית של הניסוי שלנו.",
         instructionsText2: "כיצד זה עובד:",
         instructionsStep1: "תראה/י מספר ריבועים צבעוניים על המסך לזמן קצר.",
         instructionsStep2: "הריבועים ייעלמו לרגע.",
@@ -325,8 +329,12 @@ const langDict = {
         
         // Email verification for sheet clearing (Hebrew translations)
         emailVerificationConfirmMessage: "פעולה זו תנקה את כל הנתונים מגיליון Google. קוד אימות יישלח לאימייל שלך. להמשיך?",
-        reenterPasswordPrompt: "אנא הזן/י שוב את סיסמת המנהל",
+        reenterPasswordPrompt: "אנא הזן/י שוב את סיסמת המנהל:",
+        passwordRequired: "נדרשת סיסמה כדי להמשיך",
+        sendingCode: "שולח קוד...",
+        codeSenatToEmail: "קוד אימות נשלח לאימייל שלך!",
         emailSendFailed: "נכשל בשליחת אימייל אימות",
+        errorInitiatingClear: "שגיאה ביצירת בקשת ניקוי גיליון: ",
         verificationCodeTitle: "נדרש אימות באימייל",
         verificationCodeMessage: "קוד אימות בן 6 ספרות נשלח לאימייל שלך. אנא הזן/י אותו למטה:",
         verificationCodeExpiry: "הקוד יפוג בעוד 5 דקות",

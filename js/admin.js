@@ -384,30 +384,66 @@ async function initiateClearSheet() {
         
         if (!proceed) return;
         
-        // Get admin password for the request
-        const adminPassword = document.getElementById('adminPassword');
-        if (!adminPassword || !adminPassword.value) {
-            alert(langManager ? langManager.getText('reenterPasswordPrompt') : 'Please re-enter your admin password');
+        // Prompt for admin password since it may not be available in the DOM anymore
+        const adminPassword = prompt(
+            langManager ? langManager.getText('reenterPasswordPrompt') : 'Please re-enter your admin password:'
+        );
+        
+        if (!adminPassword) {
+            alert(langManager ? langManager.getText('passwordRequired') : 'Password is required to proceed');
             return;
         }
         
-        // Request verification code
-        const codeResponse = await requestVerificationCode(adminPassword.value);
+        // Show loading state
+        const clearSheetButton = document.getElementById('clearSheetButton');
+        const originalText = clearSheetButton ? clearSheetButton.textContent : '';
+        if (clearSheetButton) {
+            clearSheetButton.disabled = true;
+            clearSheetButton.textContent = langManager ? langManager.getText('sendingCode') : 'Sending code...';
+        }
         
-        if (codeResponse && codeResponse.result === 'success') {
-            // Show input dialog for verification code
-            showVerificationCodeDialog(adminPassword.value);
-        } else {
-            alert(
-                langManager ? langManager.getText('emailSendFailed') : 
-                'Failed to send verification email: ' + (codeResponse ? codeResponse.error : 'Unknown error')
-            );
+        try {
+            // Request verification code
+            const codeResponse = await requestVerificationCode(adminPassword);
+            
+            if (codeResponse && (codeResponse.result === 'success' || codeResponse.noCorsMode)) {
+                // Show input dialog for verification code
+                showVerificationCodeDialog(adminPassword);
+                
+                if (langManager) {
+                    alert(langManager.getText('codeSenatToEmail'));
+                } else {
+                    alert('Verification code sent to your email!');
+                }
+            } else {
+                alert(
+                    langManager ? langManager.getText('emailSendFailed') : 
+                    'Failed to send verification email: ' + (codeResponse ? codeResponse.error : 'Unknown error')
+                );
+            }
+        } finally {
+            // Reset button state
+            if (clearSheetButton) {
+                clearSheetButton.disabled = false;
+                clearSheetButton.textContent = originalText;
+            }
         }
     } catch (error) {
         if (window.ExperimentLogger) {
             window.ExperimentLogger.logError(error, 'initiateClearSheet');
         }
-        alert('Error initiating clear sheet: ' + error.message);
+        const langManager = window.LanguageManager;
+        alert(
+            (langManager ? langManager.getText('errorInitiatingClear') : 'Error initiating clear sheet: ') + 
+            error.message
+        );
+        
+        // Reset button state on error
+        const clearSheetButton = document.getElementById('clearSheetButton');
+        if (clearSheetButton) {
+            clearSheetButton.disabled = false;
+            clearSheetButton.textContent = langManager ? langManager.getText('clearSheetButton') : 'Clear Google Sheet';
+        }
     }
 }
 
@@ -420,6 +456,7 @@ async function requestVerificationCode(adminPassword) {
     };
     
     try {
+        // Try standard fetch first
         const response = await fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
             method: 'POST',
             headers: {
@@ -428,8 +465,12 @@ async function requestVerificationCode(adminPassword) {
             body: JSON.stringify(requestData)
         });
         
-        const result = await response.json();
-        return result;
+        if (response.ok) {
+            const result = await response.json();
+            return result;
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
     } catch (error) {
         // Fallback for CORS issues
         if (window.ExperimentLogger) {
@@ -445,8 +486,8 @@ async function requestVerificationCode(adminPassword) {
             body: JSON.stringify(requestData)
         });
         
-        // For no-cors, assume success
-        return { result: 'success' };
+        // For no-cors, we can't read the response, so we indicate this mode
+        return { result: 'success', noCorsMode: true };
     }
 }
 
