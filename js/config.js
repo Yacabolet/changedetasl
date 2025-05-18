@@ -1,5 +1,5 @@
 // Updated config.js - Remove admin password
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXd6075nLRbNOlk_bVAsS0z5twApEjmX9alKOwQk_IyXKoQNChxDZInuf5nTZYm8DjqQ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzp6z3Hu-D06pgMEpF7LLATscoP0mhMgrWgr2WTB0cSIIII2g46Oc-V6IFOirgeeVe0Dg/exec';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-jEKZo_zAfuIUd7rox2DW6vDLL2PB-3jShe3w5ktczU/edit#gid=0';
 
 // Global variables
