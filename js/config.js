@@ -1,5 +1,5 @@
-// Updated config.js - Remove admin password
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzp6z3Hu-D06pgMEpF7LLATscoP0mhMgrWgr2WTB0cSIIII2g46Oc-V6IFOirgeeVe0Dg/exec';
+// Updated config.js - Add trialResults array to track individual trial outcomes
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZf3TgTSQhw-lv9uNtCIGS5ZSwLzlWXKGGklOIOdY02_jxepLbMdvoXEk8H85yIAlzAw/exec';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-jEKZo_zAfuIUd7rox2DW6vDLL2PB-3jShe3w5ktczU/edit#gid=0';
 
 // Global variables
@@ -54,7 +54,8 @@ let state = {
     responseTimes: [],
     timeoutTrials: [],
     trialStartTime: 0,
-    trialTimeout: null
+    trialTimeout: null,
+    trialResults: [] // New array to track correct/incorrect/timeout for each trial in order
 };
 
 // Export all configuration and state 

@@ -729,6 +729,7 @@ function skipAllTrials() {
     state.correctResponses = config.numTrials;
     state.responseTimes = Array(config.numTrials).fill(0.5);
     state.timeoutTrials = [];
+    state.trialResults = Array(config.numTrials).fill('correct'); // Set all trials as correct for admin skip
     
     if (window.ExperimentMain && window.ExperimentMain.experimentComplete) {
         window.ExperimentMain.experimentComplete();

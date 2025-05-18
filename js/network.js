@@ -92,19 +92,8 @@ function saveResultsToSheet() {
     // Prepare response times string
     const responseTimesStr = state.responseTimes.map(time => time.toFixed(2)).join(',');
     
-    // Prepare trial statuses
-    const trialStatuses = [];
-    for (let i = 0; i < state.currentTrial; i++) {
-        if (state.timeoutTrials.includes(i)) {
-            trialStatuses.push('timeout');
-        } else {
-            // Determine if this trial was correct
-            // Note: This is a simplified version - you may need to adjust based on your data structure
-            const isCorrect = i < state.correctResponses;
-            trialStatuses.push(isCorrect ? 'correct' : 'incorrect');
-        }
-    }
-    const trialStatusesStr = trialStatuses.join(',');
+    // Prepare trial statuses - now using the actual trial results array
+    const trialStatusesStr = state.trialResults.join(',');
     
     // Prepare data object to match your Google Script structure
     const data = {

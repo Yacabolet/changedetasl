@@ -1,4 +1,4 @@
-// Timer management and timeout handling
+// Timer management and timeout handling - Updated to track timeouts in trialResults
 
 // Timer utilities
 function cleanupTimers() {
@@ -66,6 +66,7 @@ function updateTimerDisplay() {
         milliseconds.toString().padStart(2, '0');
 }
 
+// Updated to properly track timeouts in trialResults
 function handleTimeout() {
     const state = window.ExperimentConfig.state;
     
@@ -89,6 +90,10 @@ function handleTimeout() {
     const config = window.ExperimentConfig.config;
     state.responseTimes.push(config.responseTimeLimit / 1000);
     state.timeoutTrials.push(state.currentTrial);
+    
+    // Record timeout in trial results array
+    state.trialResults.push('timeout');
+    
     state.currentTrial++;
     
     if (window.ExperimentLogger) {

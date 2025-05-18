@@ -1,4 +1,4 @@
-// Main experiment logic and trial management
+// Main experiment logic and trial management - Updated to track individual trial results
 
 // Initialize experiment
 function initExperiment() {
@@ -21,6 +21,7 @@ function initExperiment() {
     state.dataSaved = false;
     state.responseTimes = [];
     state.timeoutTrials = [];
+    state.trialResults = []; // Reset trial results tracking
     
     // Ensure result elements exist
     if (window.ExperimentUI) {
@@ -222,7 +223,7 @@ function clearStimuliArea() {
     }
 }
 
-// Process user response
+// Process user response - Updated to track individual trial results
 function processResponse(response) {
     const state = window.ExperimentConfig.state;
     const config = window.ExperimentConfig.config;
@@ -247,6 +248,9 @@ function processResponse(response) {
     // Check if response was correct
     const isCorrect = (response === 'yes' && state.hasChange) || 
                      (response === 'no' && !state.hasChange);
+    
+    // Record the result of this specific trial in order
+    state.trialResults.push(isCorrect ? 'correct' : 'incorrect');
     
     if (window.ExperimentLogger) {
         window.ExperimentLogger.logTrial(
@@ -365,7 +369,8 @@ function getExperimentProgress() {
             (state.responseTimes.reduce((a, b) => a + b, 0) / state.responseTimes.length).toFixed(2) : '0',
         timeoutTrials: state.timeoutTrials.length,
         isComplete: state.currentTrial >= config.numTrials,
-        isRunning: state.isRunning
+        isRunning: state.isRunning,
+        trialResults: [...state.trialResults] // Include trial-by-trial results
     };
 }
 
@@ -384,6 +389,7 @@ function resetExperiment() {
     state.dataSaved = false;
     state.responseTimes = [];
     state.timeoutTrials = [];
+    state.trialResults = []; // Reset trial results
     state.stimuliPositions = [];
     state.hasChange = false;
     state.stimuliColorIndices = [];
@@ -411,6 +417,7 @@ function getTrialData() {
         correctResponses: state.correctResponses,
         responseTimes: [...state.responseTimes],
         timeoutTrials: [...state.timeoutTrials],
+        trialResults: [...state.trialResults], // Include individual trial results
         accuracy: state.currentTrial > 0 ? (state.correctResponses / state.currentTrial * 100).toFixed(1) : '0',
         isComplete: state.currentTrial >= window.ExperimentConfig.config.numTrials,
         language: window.LanguageManager ? window.LanguageManager.getCurrentLanguage() : 'unknown',
@@ -429,6 +436,10 @@ function validateTrialData() {
         issues.push('Response times count mismatch');
     }
     
+    if (state.trialResults.length !== state.currentTrial) {
+        issues.push('Trial results count mismatch');
+    }
+    
     if (state.correctResponses > state.currentTrial) {
         issues.push('Correct responses exceed total trials');
     }
@@ -442,6 +453,12 @@ function validateTrialData() {
             issues.push(`Invalid response time at trial ${index + 1}: ${time}s`);
         }
     });
+    
+    // Validate that trial results count matches correct responses count
+    const correctResultsCount = state.trialResults.filter(result => result === 'correct').length;
+    if (correctResultsCount !== state.correctResponses) {
+        issues.push(`Correct results count (${correctResultsCount}) doesn't match correctResponses (${state.correctResponses})`);
+    }
     
     return {
         isValid: issues.length === 0,
