@@ -1,4 +1,4 @@
-// Updated network.js - Removed clearGoogleSheet function (now handled in admin.js with email verification)
+// Updated network.js - Removed participant ID from data submissions
 
 // API Communication functions
 function testConnection() {
@@ -7,12 +7,10 @@ function testConnection() {
     }
     
     const savingMessage = document.getElementById('savingMessage');
-    const participantIdForm = document.getElementById('participantIdForm');
     const instructionsPage = document.getElementById('instructionsPage');
     const connectionErrorMessage = document.getElementById('connectionErrorMessage');
     
     // Show loading state
-    if (participantIdForm) participantIdForm.style.display = 'none';
     if (instructionsPage) instructionsPage.style.display = 'none';
     if (connectionErrorMessage) connectionErrorMessage.style.display = 'none';
     if (savingMessage) {
@@ -92,12 +90,11 @@ function saveResultsToSheet() {
     // Prepare response times string
     const responseTimesStr = state.responseTimes.map(time => time.toFixed(2)).join(',');
     
-    // Prepare trial statuses - now using the actual trial results array
+    // Prepare trial statuses - using the actual trial results array
     const trialStatusesStr = state.trialResults.join(',');
     
-    // Prepare data object to match your Google Script structure
+    // Prepare data object without participant ID
     const data = {
-        participantId: window.ExperimentConfig.participantId,
         deviceId: window.ExperimentConfig.deviceId,
         isMobile: window.ExperimentConfig.isMobile,
         trialsCompleted: state.currentTrial,
@@ -136,11 +133,6 @@ function saveResultsToSheet() {
         
         if (saveStatus && window.LanguageManager) {
             saveStatus.textContent = window.LanguageManager.getText('resultsSavedSuccess');
-        }
-        
-        // Record participation if not in admin mode
-        if (!window.ExperimentConfig.isAdminModeActive && window.ExperimentStorage) {
-            window.ExperimentStorage.recordParticipation(null);
         }
         
         // Show thank you screen

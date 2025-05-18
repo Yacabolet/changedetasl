@@ -1,4 +1,4 @@
-// Updated utils.js - Remove client-side password checking
+// Updated utils.js - Removed participant ID validation and related functions
 
 // Utility functions for the experiment
 
@@ -45,36 +45,44 @@ function randomizeColors() {
 
 // Device ID generation and management
 function getDeviceId() {
-    let storedDeviceId = localStorage.getItem('changeDetectionDeviceId');
-    
-    if (!storedDeviceId) {
-        // Generate new device ID using browser info
-        let newId = '';
-        newId += navigator.userAgent || '';
-        newId += screen.width || '';
-        newId += screen.height || '';
-        newId += navigator.language || '';
-        newId += new Date().getTimezoneOffset() || '';
+    if (window.ExperimentStorage && window.ExperimentStorage.getStoredDeviceId) {
+        let storedDeviceId = window.ExperimentStorage.getStoredDeviceId();
         
-        // Hash the collected info
-        storedDeviceId = hashString(newId);
-        localStorage.setItem('changeDetectionDeviceId', storedDeviceId);
-        console.log('Generated new device ID: ' + storedDeviceId);
-    } else {
-        console.log('Retrieved existing device ID: ' + storedDeviceId);
+        if (!storedDeviceId) {
+            // Generate new device ID using browser info
+            let newId = '';
+            newId += navigator.userAgent || '';
+            newId += screen.width || '';
+            newId += screen.height || '';
+            newId += navigator.language || '';
+            newId += new Date().getTimezoneOffset() || '';
+            
+            // Hash the collected info
+            storedDeviceId = hashString(newId);
+            if (window.ExperimentStorage.setStoredDeviceId) {
+                window.ExperimentStorage.setStoredDeviceId(storedDeviceId);
+            }
+            console.log('Generated new device ID: ' + storedDeviceId);
+        } else {
+            console.log('Retrieved existing device ID: ' + storedDeviceId);
+        }
+        
+        return storedDeviceId;
     }
     
-    return storedDeviceId;
+    // Fallback if storage system is not available
+    const deviceInfo = navigator.userAgent + screen.width + screen.height;
+    return hashString(deviceInfo);
 }
 
-// Completion code generation
+// Completion code generation - simplified without participant ID
 function generateCompletionCode() {
     const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
     
-    // Add 4 deterministic characters based on participant ID + device ID
-    const combinedId = window.ExperimentConfig.participantId + window.ExperimentConfig.deviceId;
-    const hash = hashString(combinedId);
+    // Add 4 deterministic characters based on device ID
+    const deviceId = window.ExperimentConfig.deviceId;
+    const hash = hashString(deviceId);
     for (let i = 0; i < 4; i++) {
         const index = Math.abs(parseInt(hash.charAt(i), 16)) % characters.length;
         code += characters.charAt(index);
@@ -104,9 +112,6 @@ function hashString(str) {
     }
     return hash.toString(16);
 }
-
-// Admin password checking is now handled server-side
-// This function is removed for security
 
 // Device type checking utilities
 function isMobileDevice() {
@@ -236,14 +241,13 @@ function generateRandomPosition(areaWidth, areaHeight, stimulusSize) {
     return { x, y };
 }
 
-// Export all utility functions (checkAdminPassword removed)
+// Export all utility functions (removed participant ID validation)
 window.ExperimentUtils = {
     getRandomIndices,
     randomizeColors,
     getDeviceId,
     generateCompletionCode,
     hashString,
-    // checkAdminPassword removed - now handled server-side
     isMobileDevice,
     isLocalStorageAvailable,
     formatResponseTime,

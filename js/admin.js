@@ -1,4 +1,4 @@
-// Updated admin.js - Session-only authentication with email verification for sheet clearing
+// Updated admin.js - Removed participant ID related functions and bypass functionality
 
 // Admin state management
 function initAdminControls() {
@@ -84,7 +84,7 @@ function setupAdminEventListeners() {
             }
             showConfirmation(
                 window.LanguageManager ? window.LanguageManager.getText('clearLocalStorageConfirmTitle') : 'Clear Local Storage?',
-                window.LanguageManager ? window.LanguageManager.getText('clearLocalStorageConfirmMessage') : 'This will remove all stored participant IDs and device IDs, allowing them to be reused.',
+                window.LanguageManager ? window.LanguageManager.getText('clearLocalStorageConfirmMessage') : 'This will remove all stored data, allowing the experiment to be run again.',
                 clearLocalStorageAdmin
             );
         });
@@ -122,8 +122,7 @@ function setupSkipButtonListeners() {
         { id: 'skipNoChangeTrainingButton', action: skipNoChangeTraining },
         { id: 'skipChangeTrainingButton', action: skipChangeTraining },
         { id: 'skipAllTrialsButton', action: skipAllTrials },
-        { id: 'skipPracticeTrialsButton', action: skipPracticeTrials },
-        { id: 'bypassIdCheckButton', action: bypassIdCheck }
+        { id: 'skipPracticeTrialsButton', action: skipPracticeTrials }
     ];
     
     skipButtons.forEach(({ id, action }) => {
@@ -354,10 +353,6 @@ function updateAdminUI() {
         button.style.display = (isActive && isAuthenticated) ? 'block' : 'none';
     });
     
-    // Update bypass button
-    const bypassButton = document.getElementById('bypassIdCheckButton');
-    if (bypassButton) bypassButton.style.display = (isActive && isAuthenticated) ? 'block' : 'none';
-    
     // Update debug info display
     const debugInfo = document.getElementById('debugInfo');
     if (debugInfo) debugInfo.style.display = isActive ? 'block' : 'none';
@@ -367,7 +362,7 @@ function updateAdminUI() {
     if (timerDisplay) timerDisplay.style.display = isActive ? 'block' : 'none';
 }
 
-// New function: Initiate clear sheet with email verification
+// Email verification for sheet clearing (unchanged from original)
 async function initiateClearSheet() {
     try {
         if (window.ExperimentLogger) {
@@ -638,7 +633,7 @@ async function clearSheetWithCode(adminPassword, verificationCode) {
     }
 }
 
-// Skip functions (now require authentication)
+// Skip functions (now require authentication) - removed bypass function
 function skipInstructions() {
     if (window.ExperimentLogger) {
         window.ExperimentLogger.log('Admin: Skipped instructions');
@@ -736,32 +731,10 @@ function skipAllTrials() {
     }
 }
 
-function bypassIdCheck() {
-    if (window.ExperimentLogger) {
-        window.ExperimentLogger.log('Admin: Bypassed ID check');
-    }
-    
-    const warningElements = [
-        'previousParticipationWarning',
-        'sameIdDifferentDeviceWarning',
-        'invalidIdLengthWarning'
-    ];
-    
-    warningElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = 'none';
-    });
-    
-    // Call the main startInstructionSequence function
-    if (window.ExperimentApp && window.ExperimentApp.startInstructionSequence) {
-        window.ExperimentApp.startInstructionSequence();
-    }
-}
-
-// Data management functions
+// Data management functions - simplified without participant tracking
 function clearLocalStorageAdmin() {
-    if (window.ExperimentStorage && window.ExperimentStorage.clearParticipantData) {
-        const success = window.ExperimentStorage.clearParticipantData();
+    if (window.ExperimentStorage && window.ExperimentStorage.clearAllStorageData) {
+        const success = window.ExperimentStorage.clearAllStorageData();
         if (success && window.LanguageManager) {
             alert(window.LanguageManager.getText('localStorageCleared'));
         }
@@ -815,11 +788,10 @@ function getAdminStatus() {
         sessionOnly: true, // Indicate this is session-only
         features: {
             skipButtons: true,
-            bypassChecks: true,
             debugInfo: true,
             dataManagement: true,
             timer: true,
-            emailVerification: true // New feature
+            emailVerification: true
         }
     };
 }
@@ -830,7 +802,7 @@ function logAdminAction(action, details = {}) {
     }
 }
 
-// Export all admin functions
+// Export all admin functions (removed bypass related functions)
 window.ExperimentAdmin = {
     initAdminControls,
     setupAdminEventListeners,
@@ -853,7 +825,6 @@ window.ExperimentAdmin = {
     skipChangeTraining,
     skipPracticeTrials,
     skipAllTrials,
-    bypassIdCheck,
     clearLocalStorageAdmin,
     toggleLogs,
     showConfirmation,

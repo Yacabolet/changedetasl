@@ -1,76 +1,13 @@
-// Updated storage.js - Session-only admin authentication
+// Updated storage.js - Removed all participant tracking functionality
 
-// Storage keys
+// Storage keys - simplified to only track admin state
 const STORAGE_KEYS = {
-    participants: 'changeDetectionParticipants',
-    devices: 'changeDetectionDevices',
-    participantDeviceMap: 'changeDetectionParticipantDeviceMap',
     deviceId: 'changeDetectionDeviceId',
-    // Remove persistent admin storage keys - they'll be session-only now
     adminModeActive: 'changeDetectionAdminModeActive' // Only store admin mode active state
 };
 
 // Session-only admin authentication (not persisted across page loads)
 let sessionAdminAuthenticated = false;
-
-// Participation tracking functions
-function checkPreviousParticipation(participantId) {
-    if (!window.ExperimentUtils.isLocalStorageAvailable()) {
-        console.warn('Local storage not available - cannot check previous participation');
-        return false;
-    }
-    
-    const previousParticipantIds = JSON.parse(localStorage.getItem(STORAGE_KEYS.participants) || '[]');
-    const previousDeviceIds = JSON.parse(localStorage.getItem(STORAGE_KEYS.devices) || '[]');
-    const participantToDeviceMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.participantDeviceMap) || '{}');
-    
-    const deviceId = window.ExperimentConfig.deviceId;
-    const participantExists = previousParticipantIds.includes(participantId);
-    const deviceExists = previousDeviceIds.includes(deviceId);
-    const previousDeviceId = participantToDeviceMap[participantId];
-    const sameIdDifferentDevice = previousDeviceId && previousDeviceId !== deviceId;
-    
-    console.log(`Checking previous participation - Participant: ${participantExists ? 'EXISTS' : 'new'}, Device: ${deviceExists ? 'EXISTS' : 'new'}, Same ID different device: ${sameIdDifferentDevice ? 'YES' : 'no'}`);
-    
-    // Update state
-    window.ExperimentConfig.state.sameIdDifferentDevice = sameIdDifferentDevice;
-    
-    return participantExists || deviceExists;
-}
-
-function recordParticipation(participantId) {
-    if (!window.ExperimentUtils.isLocalStorageAvailable()) {
-        console.warn('Local storage not available - cannot record participation');
-        return;
-    }
-    
-    const deviceId = window.ExperimentConfig.deviceId;
-    const previousDeviceIds = JSON.parse(localStorage.getItem(STORAGE_KEYS.devices) || '[]');
-    
-    // Record device
-    if (!previousDeviceIds.includes(deviceId)) {
-        previousDeviceIds.push(deviceId);
-        localStorage.setItem(STORAGE_KEYS.devices, JSON.stringify(previousDeviceIds));
-    }
-    
-    // Record participant if provided
-    if (participantId) {
-        const previousParticipantIds = JSON.parse(localStorage.getItem(STORAGE_KEYS.participants) || '[]');
-        const participantToDeviceMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.participantDeviceMap) || '{}');
-        
-        if (!previousParticipantIds.includes(participantId)) {
-            previousParticipantIds.push(participantId);
-            localStorage.setItem(STORAGE_KEYS.participants, JSON.stringify(previousParticipantIds));
-        }
-        
-        participantToDeviceMap[participantId] = deviceId;
-        localStorage.setItem(STORAGE_KEYS.participantDeviceMap, JSON.stringify(participantToDeviceMap));
-        
-        console.log('Recorded participation for participant ID: ' + participantId + ' and device ID: ' + deviceId);
-    } else {
-        console.log('Recorded participation for device ID: ' + deviceId);
-    }
-}
 
 // Device ID management
 function getStoredDeviceId() {
@@ -127,20 +64,6 @@ function clearAdminSession() {
 }
 
 // Clear functions
-function clearParticipantData() {
-    if (!window.ExperimentUtils.isLocalStorageAvailable()) {
-        console.warn('Local storage not available - cannot clear participant data');
-        return false;
-    }
-    
-    localStorage.removeItem(STORAGE_KEYS.participants);
-    localStorage.removeItem(STORAGE_KEYS.devices);
-    localStorage.removeItem(STORAGE_KEYS.participantDeviceMap);
-    
-    console.log('Cleared all participant and device data from local storage');
-    return true;
-}
-
 function clearAdminData() {
     if (!window.ExperimentUtils.isLocalStorageAvailable()) {
         console.warn('Local storage not available - cannot clear admin data');
@@ -199,31 +122,10 @@ function getStorageStatistics() {
         return null;
     }
     
-    const participants = JSON.parse(localStorage.getItem(STORAGE_KEYS.participants) || '[]');
-    const devices = JSON.parse(localStorage.getItem(STORAGE_KEYS.devices) || '[]');
-    const participantDeviceMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.participantDeviceMap) || '{}');
-    
     return {
-        totalParticipants: participants.length,
-        totalDevices: devices.length,
-        totalMappings: Object.keys(participantDeviceMap).length,
         isAdminAuthenticated: sessionAdminAuthenticated, // Session-only
         isAdminModeActive: localStorage.getItem(STORAGE_KEYS.adminModeActive) === 'true'
     };
-}
-
-// Validation functions
-function validateParticipantId(participantId) {
-    // Check if participant ID is exactly 9 characters
-    if (!participantId || typeof participantId !== 'string') {
-        return { valid: false, reason: 'Participant ID must be a string' };
-    }
-    
-    if (participantId.length !== 9) {
-        return { valid: false, reason: 'Participant ID must be exactly 9 characters long' };
-    }
-    
-    return { valid: true };
 }
 
 // Import/Export functions for admin use
@@ -286,22 +188,18 @@ function setupAdminSessionClearing() {
     console.log('Admin session clearing handlers setup complete');
 }
 
-// Export all storage functions
+// Export storage functions (removed all participant-related functions)
 window.ExperimentStorage = {
     STORAGE_KEYS,
-    checkPreviousParticipation,
-    recordParticipation,
     getStoredDeviceId,
     setStoredDeviceId,
     getStoredAdminState,
     setStoredAdminState,
     clearAdminSession,
-    clearParticipantData,
     clearAdminData,
     clearAllStorageData,
     getAllStoredData,
     getStorageStatistics,
-    validateParticipantId,
     exportStorageData,
     importStorageData,
     setupAdminSessionClearing

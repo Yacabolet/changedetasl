@@ -1,4 +1,4 @@
-// Main initialization and event handler setup
+// Main initialization and event handler setup - Updated to remove participant ID handling
 
 // Initialize on page load
 function initializeApp() {
@@ -18,11 +18,11 @@ function initializeApp() {
     // Check local storage availability
     if (window.ExperimentUtils.isLocalStorageAvailable()) {
         if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Local storage is available for tracking participation');
+            window.ExperimentLogger.log('Local storage is available');
         }
     } else {
         if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('WARNING: Local storage is not available. Participation tracking disabled.');
+            window.ExperimentLogger.log('WARNING: Local storage is not available');
         }
     }
     
@@ -62,12 +62,6 @@ function setupEventListeners() {
         });
     }
 
-    // Start experiment button (participant form)
-    const startExperimentButton = document.getElementById('startExperiment');
-    if (startExperimentButton) {
-        startExperimentButton.addEventListener('click', handleStartExperiment);
-    }
-
     // Instructions understood button
     const instructionsUnderstoodButton = document.getElementById('instructionsUnderstoodButton');
     if (instructionsUnderstoodButton) {
@@ -94,105 +88,15 @@ function setupEventListeners() {
     }
 }
 
-// Handle start experiment button click
-function handleStartExperiment() {
-    const participantIdInput = document.getElementById('participantId');
-    
-    // Hide all warnings first
-    if (window.ExperimentUI) {
-        window.ExperimentUI.hideAllWarnings();
-    }
-    
-    if (!participantIdInput) return;
-    
-    const idValue = participantIdInput.value.trim();
-    
-    if (idValue === '') {
-        if (window.LanguageManager) {
-            alert(window.LanguageManager.getText('pleaseEnterParticipantId'));
-        }
-        return;
-    }
-    
-    // Validate participant ID length
-    const validation = window.ExperimentStorage.validateParticipantId(idValue);
-    if (!validation.valid) {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Invalid Participant ID: ' + validation.reason);
-        }
-        
-        if (window.ExperimentUI) {
-            window.ExperimentUI.showWarning('invalidId');
-        }
-        return;
-    }
-    
-    window.ExperimentConfig.participantId = idValue;
-    
-    // Skip checks if admin mode is active
-    if (window.ExperimentConfig.isAdminModeActive) {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Admin mode active: Bypassing previous participation check');
-        }
-        startInstructionSequence();
-        return;
-    }
-    
-    // Check for previous participation
-    if (window.ExperimentStorage.checkPreviousParticipation(idValue)) {
-        if (window.ExperimentConfig.state.sameIdDifferentDevice) {
-            if (window.ExperimentUI) {
-                window.ExperimentUI.showWarning('sameId');
-            }
-            if (window.ExperimentLogger) {
-                window.ExperimentLogger.log('Same ID on different device detected. Showing specific warning.');
-            }
-        } else {
-            if (window.ExperimentUI) {
-                window.ExperimentUI.showWarning('participation');
-            }
-            if (window.ExperimentLogger) {
-                window.ExperimentLogger.log('Previous participation detected. Showing warning.');
-            }
-        }
-    } else {
-        startInstructionSequence();
-    }
-}
-
-// Handle instructions understood
+// Handle instructions understood - simplified without participant ID checks
 function handleInstructionsUnderstood() {
-    // Skip device check if admin mode is active
-    if (window.ExperimentConfig.isAdminModeActive) {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Admin mode active: Bypassing device check');
-        }
-        proceedToTraining();
-        return;
-    }
-    
-    // Check if device was already used
-    const previousDeviceIds = JSON.parse(localStorage.getItem('changeDetectionDevices') || '[]');
-    const deviceAlreadyUsed = previousDeviceIds.includes(window.ExperimentConfig.deviceId);
-    
-    if (deviceAlreadyUsed) {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Device already used detected. Showing warning.');
-        }
-        
-        if (window.ExperimentUI) {
-            window.ExperimentUI.showPage('previousParticipationWarning', ['instructionsPage']);
-        }
-    } else {
-        proceedToTraining();
-    }
+    proceedToTraining();
 }
 
-// Start instruction sequence
+// Start instruction sequence - simplified 
 function startInstructionSequence() {
     if (window.ExperimentUI) {
-        window.ExperimentUI.hideAllWarnings();
-        window.ExperimentUI.showPage('instructionsPage', ['participantIdForm']);
+        window.ExperimentUI.showPage('instructionsPage');
     }
     
     if (window.ExperimentUI && window.ExperimentUI.startInstructionsTimer) {
@@ -474,11 +378,10 @@ function initWhenReady() {
 // Start initialization when window loads
 window.addEventListener('load', initWhenReady);
 
-// Export main functions for potential external use
+// Export main functions for potential external use (removed participant ID functions)
 window.ExperimentApp = {
     initializeApp,
     setupEventListeners,
-    handleStartExperiment,
     handleInstructionsUnderstood,
     startInstructionSequence,
     proceedToTraining,

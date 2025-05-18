@@ -1,3 +1,5 @@
+/* Updated styles.css - Removed participant ID form styling */
+
 /* Base styles and layout */
 body {
     font-family: Arial, sans-serif;
@@ -91,21 +93,6 @@ button:hover:not(:disabled) {
     display: none;
 }
 
-/* Participant ID form */
-#participantIdForm {
-    margin: 20px;
-}
-
-#participantId {
-    padding: 12px;
-    font-size: 18px;
-    width: 80%;
-    max-width: 300px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
 #saveStatus {
     margin-top: 15px;
     font-weight: bold;
@@ -133,9 +120,8 @@ button:hover:not(:disabled) {
     gap: 10px;
 }
 
-/* Warning and error messages */
-#previousParticipationWarning, #sameIdDifferentDeviceWarning, 
-#invalidIdLengthWarning, #connectionErrorMessage {
+/* Warning and error messages - removed participant ID specific warnings */
+#connectionErrorMessage {
     color: red;
     font-weight: bold;
     margin: 20px;
@@ -387,8 +373,8 @@ input:checked + .adminSlider:before {
     transform: translateX(26px);
 }
 
-/* Skip and bypass buttons (admin only) */
-.skipButton, .bypassButton {
+/* Skip buttons (admin only) */
+.skipButton {
     display: none;
     margin: 10px auto;
     background-color: #fff3cd;
@@ -477,13 +463,6 @@ input:checked + .adminSlider:before {
         max-width: 350px;
     }
     
-    #participantId {
-        padding: 15px;
-        font-size: 20px;
-        width: 90%;
-        max-width: 350px;
-    }
-    
     label {
         font-size: 20px;
         margin-bottom: 15px;
@@ -497,8 +476,7 @@ input:checked + .adminSlider:before {
         font-size: 28px;
     }
     
-    #previousParticipationWarning, #connectionErrorMessage, 
-    #sameIdDifferentDeviceWarning, #invalidIdLengthWarning {
+    #connectionErrorMessage {
         font-size: 20px;
     }
     

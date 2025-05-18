@@ -1,4 +1,4 @@
-// Main experiment logic and trial management - Updated to track individual trial results
+// Main experiment logic and trial management - Updated to remove participant ID from data collection
 
 // Initialize experiment
 function initExperiment() {
@@ -405,12 +405,11 @@ function resetExperiment() {
     initExperiment();
 }
 
-// Data collection utilities
+// Data collection utilities - updated to remove participant ID
 function getTrialData() {
     const state = window.ExperimentConfig.state;
     
     return {
-        participantId: window.ExperimentConfig.participantId,
         deviceId: window.ExperimentConfig.deviceId,
         currentTrial: state.currentTrial,
         totalTrials: window.ExperimentConfig.config.numTrials,

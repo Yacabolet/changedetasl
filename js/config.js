@@ -1,9 +1,8 @@
-// Updated config.js - Add trialResults array to track individual trial outcomes
+// Updated config.js - Removed participantId and related state
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZf3TgTSQhw-lv9uNtCIGS5ZSwLzlWXKGGklOIOdY02_jxepLbMdvoXEk8H85yIAlzAw/exec';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-jEKZo_zAfuIUd7rox2DW6vDLL2PB-3jShe3w5ktczU/edit#gid=0';
 
 // Global variables
-let participantId = '';
 let deviceId = '';
 let isInternetConnected = false;
 let completionCode = '';
@@ -44,7 +43,6 @@ let state = {
     hasChange: false,
     isRunning: false,
     dataSaved: false,
-    sameIdDifferentDevice: false,
     stimuliColorIndices: [],
     practiceTrials: [],
     currentPracticeTrial: 0,
@@ -55,7 +53,7 @@ let state = {
     timeoutTrials: [],
     trialStartTime: 0,
     trialTimeout: null,
-    trialResults: [] // New array to track correct/incorrect/timeout for each trial in order
+    trialResults: [] // Track correct/incorrect/timeout for each trial in order
 };
 
 // Export all configuration and state 
@@ -67,8 +65,6 @@ window.ExperimentConfig = {
     state,
     isMobile,
     // Global variables with getters/setters for controlled access
-    get participantId() { return participantId; },
-    set participantId(value) { participantId = value; },
     get deviceId() { return deviceId; },
     set deviceId(value) { deviceId = value; },
     get isInternetConnected() { return isInternetConnected; },

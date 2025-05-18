@@ -1,30 +1,12 @@
-// Language dictionaries for internationalization
+// Language dictionaries for internationalization - Updated to remove all participant ID related keys
 const langDict = {
     en: {
         trialCounter: "Trial {0} of {1}",
-        pleaseEnterParticipantId: "Please enter a Participant ID",
         
         // Connection error messages
         connectionErrorText1: "Unable to connect to Google Sheets.",
         connectionErrorText2: "Please use a different WIFI or Mobile Data connection and refresh the page.",
         retryConnectionButton: "Retry Connection",
-        
-        // Warning messages
-        prevParticipationText1: "It appears you have already participated in this study.",
-        prevParticipationText2: "Each participant should only complete the study once.",
-        prevParticipationText3: "Please contact the researcher if you believe this is an error.",
-        
-        sameIdText1: "This Participant ID has already been used on a different device.",
-        sameIdText2: "Each participant ID can only be used on one device.",
-        sameIdText3: "Please contact the researcher if you believe this is an error.",
-        
-        invalidIdText1: "Invalid Participant ID length.",
-        invalidIdText2: "Participant ID must be exactly 9 characters long.",
-        invalidIdText3: "Please try again with the correct ID format.",
-        
-        // Participant form
-        participantIdLabel: "Participant ID:",
-        startExperiment: "Begin Experiment",
         
         // Instructions page
         instructionsTitle: "Experiment Instructions",
@@ -134,7 +116,6 @@ const langDict = {
         skipNoChangeTrainingButton: "Skip No-Change Training",
         skipChangeTrainingButton: "Skip Change Training",
         skipAllTrialsButton: "Skip All Trials",
-        bypassIdCheckButton: "Bypass ID Check",
         
         // Confirmation messages
         clearSheetConfirmTitle: "Clear Google Sheet?",
@@ -173,29 +154,11 @@ const langDict = {
     },
     he: {
         trialCounter: "ניסיון {0} מתוך {1}",
-        pleaseEnterParticipantId: "אנא הזן/י מזהה משתתף",
         
         // Connection error messages
         connectionErrorText1: "לא ניתן להתחבר ל-Google Sheets.",
         connectionErrorText2: "אנא השתמש/י בחיבור WiFi אחר ורענן/י את הדף.",
         retryConnectionButton: "נסה חיבור מחדש",
-        
-        // Warning messages
-        prevParticipationText1: "נראה שכבר השתתפת במחקר זה.",
-        prevParticipationText2: "כל משתתף יכול להשלים את המחקר פעם אחת בלבד.",
-        prevParticipationText3: "אנא צור/י קשר עם החוקר אם את/ה סבור/ה שזו טעות.",
-        
-        sameIdText1: "מספר תעודת זהות זה כבר נמצא בשימוש במכשיר אחר.",
-        sameIdText2: "כל מספר תעודת זהות יכול לשמש במכשיר אחד בלבד.",
-        sameIdText3: "אנא צור/י קשר עם החוקר אם את/ה סבור/ה שזו טעות.",
-        
-        invalidIdText1: "אורך מספר תעודת זהות אינו תקין.",
-        invalidIdText2: "מספר תעודת זהות חייב להיות באורך של 9 תווים בדיוק.",
-        invalidIdText3: "אנא נסה/י שוב עם תבנית מזהה נכונה.",
-        
-        // Participant form
-        participantIdLabel: "מספר תעודת זהות:",
-        startExperiment: "התחל ניסוי",
         
         // Instructions page
         instructionsTitle: "הוראות הניסוי",
@@ -305,7 +268,6 @@ const langDict = {
         skipNoChangeTrainingButton: "דלג על אימון ללא שינוי",
         skipChangeTrainingButton: "דלג על אימון שינוי",
         skipAllTrialsButton: "דלג על כל הניסיונות",
-        bypassIdCheckButton: "עקוף בדיקת מזהה",
         
         // Confirmation messages
         clearSheetConfirmTitle: "לנקות את גיליון Google?",
@@ -397,13 +359,9 @@ function updateLanguage() {
         }
     }
     
-    // Update all text elements
+    // Update all text elements (removed participant ID related ones)
     const textElements = [
         'connectionErrorText1', 'connectionErrorText2', 'retryConnectionButton',
-        'prevParticipationText1', 'prevParticipationText2', 'prevParticipationText3',
-        'sameIdText1', 'sameIdText2', 'sameIdText3',
-        'invalidIdText1', 'invalidIdText2', 'invalidIdText3',
-        'participantIdLabel', 'startExperiment',
         'instructionsTitle', 'instructionsText1', 'instructionsText2',
         'instructionsStep1', 'instructionsStep2', 'instructionsStep3', 'instructionsStep4',
         'instructionsText3', 'instructionsText4', 'instructionsText5',
@@ -421,7 +379,7 @@ function updateLanguage() {
         'clearSheetButton', 'clearLocalStorageButton', 'viewLogsButton',
         'openSpreadsheetDirectButton', 'closeControlPanelButton',
         'skipInstructionsButton', 'skipNoChangeTrainingButton', 'skipChangeTrainingButton',
-        'skipAllTrialsButton', 'bypassIdCheckButton', 'confirmationTitle',
+        'skipAllTrialsButton', 'confirmationTitle',
         'confirmYesButton', 'confirmNoButton'
     ];
     
