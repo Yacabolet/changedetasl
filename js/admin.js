@@ -1,4 +1,4 @@
-// Updated admin.js - Session-only authentication
+// Updated admin.js - Session-only authentication with email verification for sheet clearing
 
 // Admin state management
 function initAdminControls() {
@@ -72,11 +72,7 @@ function setupAdminEventListeners() {
                 alert('Please authenticate first');
                 return;
             }
-            showConfirmation(
-                window.LanguageManager ? window.LanguageManager.getText('clearSheetConfirmTitle') : 'Clear Google Sheet?',
-                window.LanguageManager ? window.LanguageManager.getText('clearSheetConfirmMessage') : 'This will remove ALL data from the Google Sheet. This action cannot be undone!',
-                clearGoogleSheetAdmin
-            );
+            initiateClearSheet();
         });
     }
     
@@ -371,6 +367,236 @@ function updateAdminUI() {
     if (timerDisplay) timerDisplay.style.display = isActive ? 'block' : 'none';
 }
 
+// New function: Initiate clear sheet with email verification
+async function initiateClearSheet() {
+    try {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('Initiating clear sheet with email verification');
+        }
+        
+        const langManager = window.LanguageManager;
+        
+        // First confirmation - ask if they want to proceed with email verification
+        const proceed = confirm(
+            langManager ? langManager.getText('emailVerificationConfirmMessage') : 
+            'This will clear ALL data from the Google Sheet. A verification code will be sent to your email. Continue?'
+        );
+        
+        if (!proceed) return;
+        
+        // Get admin password for the request
+        const adminPassword = document.getElementById('adminPassword');
+        if (!adminPassword || !adminPassword.value) {
+            alert(langManager ? langManager.getText('reenterPasswordPrompt') : 'Please re-enter your admin password');
+            return;
+        }
+        
+        // Request verification code
+        const codeResponse = await requestVerificationCode(adminPassword.value);
+        
+        if (codeResponse && codeResponse.result === 'success') {
+            // Show input dialog for verification code
+            showVerificationCodeDialog(adminPassword.value);
+        } else {
+            alert(
+                langManager ? langManager.getText('emailSendFailed') : 
+                'Failed to send verification email: ' + (codeResponse ? codeResponse.error : 'Unknown error')
+            );
+        }
+    } catch (error) {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.logError(error, 'initiateClearSheet');
+        }
+        alert('Error initiating clear sheet: ' + error.message);
+    }
+}
+
+// Request verification code from server
+async function requestVerificationCode(adminPassword) {
+    const requestData = {
+        action: 'requestClearCode',
+        adminPassword: adminPassword,
+        timestamp: Date.now()
+    };
+    
+    try {
+        const response = await fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        // Fallback for CORS issues
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('CORS blocked, using no-cors fallback for code request');
+        }
+        
+        await fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        // For no-cors, assume success
+        return { result: 'success' };
+    }
+}
+
+// Show verification code input dialog
+function showVerificationCodeDialog(adminPassword) {
+    const langManager = window.LanguageManager;
+    
+    // Create modal for verification code input
+    const modal = document.createElement('div');
+    modal.id = 'verificationCodeModal';
+    modal.className = 'confirmationModal';
+    modal.style.display = 'block';
+    
+    modal.innerHTML = `
+        <div class="confirmationContent">
+            <h3>${langManager ? langManager.getText('verificationCodeTitle') : 'Email Verification Required'}</h3>
+            <p>${langManager ? langManager.getText('verificationCodeMessage') : 'A 6-digit verification code has been sent to your email. Please enter it below:'}</p>
+            <div style="margin: 20px 0;">
+                <input type="text" id="verificationCodeInput" placeholder="123456" 
+                       style="font-size: 18px; padding: 10px; text-align: center; letter-spacing: 2px; width: 150px;"
+                       maxlength="6" pattern="[0-9]{6}">
+            </div>
+            <p style="font-size: 14px; color: #666;">
+                ${langManager ? langManager.getText('verificationCodeExpiry') : 'Code expires in 5 minutes'}
+            </p>
+            <div style="margin-top: 20px;">
+                <button id="verifyCodeButton" class="adminButton primary">
+                    ${langManager ? langManager.getText('verifyAndClearButton') : 'Verify and Clear Sheet'}
+                </button>
+                <button id="cancelVerificationButton" class="adminButton">
+                    ${langManager ? langManager.getText('confirmNoButton') : 'Cancel'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Set up event listeners
+    const verificationInput = document.getElementById('verificationCodeInput');
+    const verifyButton = document.getElementById('verifyCodeButton');
+    const cancelButton = document.getElementById('cancelVerificationButton');
+    
+    // Focus on input
+    if (verificationInput) verificationInput.focus();
+    
+    // Auto-format input (numbers only)
+    if (verificationInput) {
+        verificationInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+        
+        verificationInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter' && e.target.value.length === 6) {
+                verifyButton.click();
+            }
+        });
+    }
+    
+    if (verifyButton) {
+        verifyButton.addEventListener('click', async function() {
+            const code = verificationInput ? verificationInput.value : '';
+            if (code.length !== 6) {
+                alert(langManager ? langManager.getText('invalidCodeFormat') : 'Please enter a 6-digit code');
+                return;
+            }
+            
+            verifyButton.disabled = true;
+            verifyButton.textContent = langManager ? langManager.getText('verifying') : 'Verifying...';
+            
+            try {
+                await clearSheetWithCode(adminPassword, code);
+                document.body.removeChild(modal);
+            } catch (error) {
+                verifyButton.disabled = false;
+                verifyButton.textContent = langManager ? langManager.getText('verifyAndClearButton') : 'Verify and Clear Sheet';
+            }
+        });
+    }
+    
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            document.body.removeChild(modal);
+        });
+    }
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+// Clear sheet with verification code
+async function clearSheetWithCode(adminPassword, verificationCode) {
+    const requestData = {
+        action: 'clearSheet',
+        adminPassword: adminPassword,
+        verificationCode: verificationCode,
+        timestamp: Date.now()
+    };
+    
+    try {
+        const response = await fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.result === 'success') {
+            if (window.LanguageManager) {
+                alert(window.LanguageManager.getText('sheetCleared'));
+            } else {
+                alert('Google Sheet cleared successfully!');
+            }
+            if (window.ExperimentLogger) {
+                window.ExperimentLogger.log('Sheet cleared successfully with email verification');
+            }
+        } else {
+            alert('Error: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        // Fallback for CORS issues
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('CORS blocked, using no-cors fallback for sheet clear');
+        }
+        
+        await fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        // For no-cors, assume success
+        if (window.LanguageManager) {
+            alert(window.LanguageManager.getText('sheetCleared'));
+        } else {
+            alert('Sheet clear request sent (no-cors mode)');
+        }
+    }
+}
+
 // Skip functions (now require authentication)
 function skipInstructions() {
     if (window.ExperimentLogger) {
@@ -491,21 +717,6 @@ function bypassIdCheck() {
 }
 
 // Data management functions
-function clearGoogleSheetAdmin() {
-    if (window.ExperimentNetwork && window.ExperimentNetwork.clearGoogleSheet) {
-        window.ExperimentNetwork.clearGoogleSheet()
-            .then(result => {
-                if (result.success) {
-                    if (window.LanguageManager) {
-                        alert(window.LanguageManager.getText('sheetCleared'));
-                    }
-                } else {
-                    console.error('Failed to clear Google Sheet:', result.error);
-                }
-            });
-    }
-}
-
 function clearLocalStorageAdmin() {
     if (window.ExperimentStorage && window.ExperimentStorage.clearParticipantData) {
         const success = window.ExperimentStorage.clearParticipantData();
@@ -565,7 +776,8 @@ function getAdminStatus() {
             bypassChecks: true,
             debugInfo: true,
             dataManagement: true,
-            timer: true
+            timer: true,
+            emailVerification: true // New feature
         }
     };
 }
@@ -590,13 +802,16 @@ window.ExperimentAdmin = {
     toggleControlOptions,
     toggleAdminMode,
     updateAdminUI,
+    initiateClearSheet,
+    requestVerificationCode,
+    showVerificationCodeDialog,
+    clearSheetWithCode,
     skipInstructions,
     skipNoChangeTraining,
     skipChangeTraining,
     skipPracticeTrials,
     skipAllTrials,
     bypassIdCheck,
-    clearGoogleSheetAdmin,
     clearLocalStorageAdmin,
     toggleLogs,
     showConfirmation,

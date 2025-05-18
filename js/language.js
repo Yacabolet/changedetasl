@@ -154,7 +154,18 @@ const langDict = {
         resultsSavedSuccess: "Results saved successfully!",
         errorSavingData: "Error saving data:",
         
-        adminOverride: "Override (Admin Only)"
+        adminOverride: "Override (Admin Only)",
+        
+        // Email verification for sheet clearing
+        emailVerificationConfirmMessage: "This will clear ALL data from the Google Sheet. A verification code will be sent to your email. Continue?",
+        reenterPasswordPrompt: "Please re-enter your admin password",
+        emailSendFailed: "Failed to send verification email",
+        verificationCodeTitle: "Email Verification Required",
+        verificationCodeMessage: "A 6-digit verification code has been sent to your email. Please enter it below:",
+        verificationCodeExpiry: "Code expires in 5 minutes",
+        verifyAndClearButton: "Verify and Clear Sheet",
+        invalidCodeFormat: "Please enter a 6-digit code",
+        verifying: "Verifying..."
     },
     he: {
         trialCounter: "ניסיון {0} מתוך {1}",
@@ -184,7 +195,7 @@ const langDict = {
         
         // Instructions page
         instructionsTitle: "הוראות הניסוי",
-        instructionsText1: "ברוכים/ברוכות הבאים למשימה הקוגניטיבית של הניסוי שלנו.",
+        instructionsText1: "ברוכים/ברוכות הבאים/באות למשימה הקוגניטיבית של הניסוי שלנו.",
         instructionsText2: "כיצד זה עובד:",
         instructionsStep1: "תראה/י מספר ריבועים צבעוניים על המסך לזמן קצר.",
         instructionsStep2: "הריבועים ייעלמו לרגע.",
@@ -310,7 +321,18 @@ const langDict = {
         resultsSavedSuccess: "התוצאות נשמרו בהצלחה!",
         errorSavingData: "שגיאה בשמירת נתונים:",
         
-        adminOverride: "עקיפה (מנהל בלבד)"
+        adminOverride: "עקיפה (מנהל בלבד)",
+        
+        // Email verification for sheet clearing (Hebrew translations)
+        emailVerificationConfirmMessage: "פעולה זו תנקה את כל הנתונים מגיליון Google. קוד אימות יישלח לאימייל שלך. להמשיך?",
+        reenterPasswordPrompt: "אנא הזן/י שוב את סיסמת המנהל",
+        emailSendFailed: "נכשל בשליחת אימייל אימות",
+        verificationCodeTitle: "נדרש אימות באימייל",
+        verificationCodeMessage: "קוד אימות בן 6 ספרות נשלח לאימייל שלך. אנא הזן/י אותו למטה:",
+        verificationCodeExpiry: "הקוד יפוג בעוד 5 דקות",
+        verifyAndClearButton: "אמת ונקה גיליון",
+        invalidCodeFormat: "אנא הזן/י קוד בן 6 ספרות",
+        verifying: "מאמת..."
     }
 };
 
@@ -481,9 +503,11 @@ function updateLanguage() {
     if (experimentTrialInfo && experimentTrialInfo.style.display !== 'none') {
         const currentTrial = window.ExperimentConfig.state.currentTrial || 1;
         const totalTrials = window.ExperimentConfig.config.numTrials;
-        experimentTrialInfo.innerHTML = getText('trialCounter')
-            .replace('{0}', `<span id="currentTrialDisplay">${currentTrial}</span>`)
-            .replace('{1}', `<span id="totalTrialsDisplay">${totalTrials}</span>`);
+        if (window.LanguageManager) {
+            experimentTrialInfo.innerHTML = getText('trialCounter')
+                .replace('{0}', `<span id="currentTrialDisplay">${currentTrial}</span>`)
+                .replace('{1}', `<span id="totalTrialsDisplay">${totalTrials}</span>`);
+        }
     }
 }
 

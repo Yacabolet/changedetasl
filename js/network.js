@@ -1,4 +1,4 @@
-// Updated network.js - Compatible with your existing Google Apps Script
+// Updated network.js - Removed clearGoogleSheet function (now handled in admin.js with email verification)
 
 // API Communication functions
 function testConnection() {
@@ -183,69 +183,110 @@ function saveResultsToSheet() {
     });
 }
 
-// Updated clear function to work with your authentication system
-function clearGoogleSheet() {
+// Generic network request function for admin operations
+function sendAdminRequest(requestData) {
     if (window.ExperimentLogger) {
-        window.ExperimentLogger.log('Attempting to clear Google Sheet...');
+        window.ExperimentLogger.log('Sending admin request: ' + requestData.action);
     }
-    
-    const savingMessage = document.getElementById('savingMessage');
-    if (savingMessage && window.LanguageManager) {
-        savingMessage.style.display = 'block';
-        savingMessage.innerHTML = `<h2>${window.LanguageManager.getText('savingText')}</h2>`;
-    }
-    
-    // Get admin password for authentication
-    const adminPassword = prompt('Enter admin password to confirm sheet clearing:');
-    if (!adminPassword) {
-        if (savingMessage) savingMessage.style.display = 'none';
-        return Promise.resolve({ success: false, error: 'Operation cancelled' });
-    }
-    
-    const requestData = {
-        action: 'clearSheet',
-        adminPassword: adminPassword
-    };
     
     return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestData)
     })
-    .then(() => {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Google Sheet clear request sent');
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        if (savingMessage) savingMessage.style.display = 'none';
-        
-        if (window.LanguageManager) {
-            alert(window.LanguageManager.getText('sheetCleared'));
-        }
-        
-        return { success: true };
+        return response.json();
     })
     .catch(error => {
-        if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Error clearing Google Sheet: ' + error.toString());
+        // For CORS issues, try no-cors mode
+        if (error.message.includes('CORS') || error.name === 'TypeError') {
+            if (window.ExperimentLogger) {
+                window.ExperimentLogger.log('CORS blocked, using no-cors fallback for: ' + requestData.action);
+            }
+            
+            return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(() => {
+                // For no-cors, we can't read the response, so we assume success
+                return { result: 'success', noCorsMode: true };
+            });
         }
-        
-        if (savingMessage) savingMessage.style.display = 'none';
-        
-        if (window.LanguageManager) {
-            alert(window.LanguageManager.getText('errorSavingData') + ' ' + error.toString());
-        }
-        
-        return { success: false, error: error.message };
+        throw error;
     });
 }
 
 // Network status checking
 function checkNetworkStatus() {
     return navigator.onLine;
+}
+
+// Enhanced connection test with detailed diagnostics
+function performDetailedConnectionTest() {
+    const diagnostics = {
+        browserOnline: navigator.onLine,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        tests: []
+    };
+    
+    // Test 1: Basic connectivity
+    const basicTest = fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-cache'
+    })
+    .then(() => {
+        diagnostics.tests.push({ name: 'Basic connectivity', status: 'success' });
+        return true;
+    })
+    .catch(error => {
+        diagnostics.tests.push({ name: 'Basic connectivity', status: 'failed', error: error.message });
+        return false;
+    });
+    
+    // Test 2: POST request capability
+    const postTest = basicTest.then(basicSuccess => {
+        if (!basicSuccess) return false;
+        
+        return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'test', timestamp: Date.now() })
+        })
+        .then(() => {
+            diagnostics.tests.push({ name: 'POST request', status: 'success' });
+            return true;
+        })
+        .catch(error => {
+            diagnostics.tests.push({ name: 'POST request', status: 'failed', error: error.message });
+            return false;
+        });
+    });
+    
+    return postTest.then(allSuccess => {
+        diagnostics.overallStatus = allSuccess ? 'success' : 'failed';
+        
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('Connection diagnostics: ' + JSON.stringify(diagnostics, null, 2));
+        }
+        
+        return {
+            success: allSuccess,
+            diagnostics: diagnostics
+        };
+    });
 }
 
 // Retry mechanism for failed requests
@@ -255,10 +296,10 @@ function retryOperation(operation, maxRetries = 3, delay = 1000) {
     const attempt = () => {
         return operation()
             .then(result => {
-                if (result.success) {
+                if (result && result.success !== false) {
                     return result;
                 } else {
-                    throw new Error(result.error || 'Operation failed');
+                    throw new Error(result ? (result.error || 'Operation failed') : 'Operation failed');
                 }
             })
             .catch(error => {
@@ -292,6 +333,10 @@ function sendBatchData(dataArray) {
         timestamp: Date.now()
     };
     
+    if (window.ExperimentLogger) {
+        window.ExperimentLogger.log(`Sending batch data with ${dataArray.length} items`);
+    }
+    
     return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -300,42 +345,208 @@ function sendBatchData(dataArray) {
         },
         body: JSON.stringify(batchData)
     })
-    .then(() => ({ success: true, count: dataArray.length }))
-    .catch(error => ({ success: false, error: error.message }));
+    .then(() => {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log(`Batch data sent successfully (${dataArray.length} items)`);
+        }
+        return { success: true, count: dataArray.length };
+    })
+    .catch(error => {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log(`Batch data send failed: ${error.message}`);
+        }
+        return { success: false, error: error.message };
+    });
 }
 
 // Connection timeout handling
 function fetchWithTimeout(url, options = {}, timeout = 10000) {
-    return Promise.race([
-        fetch(url, options),
-        new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Request timeout')), timeout)
-        )
-    ]);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const enhancedOptions = {
+        ...options,
+        signal: controller.signal
+    };
+    
+    return fetch(url, enhancedOptions)
+        .finally(() => clearTimeout(timeoutId))
+        .catch(error => {
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout');
+            }
+            throw error;
+        });
 }
 
-// Network error classification
+// Network error classification and handling
 function classifyNetworkError(error) {
-    if (!error) return 'unknown';
+    if (!error) return { type: 'unknown', retry: false };
     
     const message = error.message.toLowerCase();
     
-    if (message.includes('timeout')) return 'timeout';
-    if (message.includes('network')) return 'network';
-    if (message.includes('cors')) return 'cors';
-    if (message.includes('fetch')) return 'fetch';
+    if (message.includes('timeout') || error.name === 'AbortError') {
+        return { type: 'timeout', retry: true };
+    }
     
-    return 'unknown';
+    if (message.includes('network') || message.includes('failed to fetch')) {
+        return { type: 'network', retry: true };
+    }
+    
+    if (message.includes('cors')) {
+        return { type: 'cors', retry: false };
+    }
+    
+    if (message.includes('403') || message.includes('unauthorized')) {
+        return { type: 'authentication', retry: false };
+    }
+    
+    if (message.includes('404')) {
+        return { type: 'not_found', retry: false };
+    }
+    
+    if (message.includes('500') || message.includes('503')) {
+        return { type: 'server_error', retry: true };
+    }
+    
+    return { type: 'unknown', retry: false };
 }
+
+// Network monitoring for connection quality
+function startNetworkMonitoring(callback) {
+    let lastOnlineStatus = navigator.onLine;
+    let connectionQuality = 'unknown';
+    
+    // Monitor online/offline status
+    const handleOnline = () => {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('Network: Connection restored');
+        }
+        lastOnlineStatus = true;
+        if (callback) callback({ online: true, quality: connectionQuality });
+    };
+    
+    const handleOffline = () => {
+        if (window.ExperimentLogger) {
+            window.ExperimentLogger.log('Network: Connection lost');
+        }
+        lastOnlineStatus = false;
+        connectionQuality = 'offline';
+        if (callback) callback({ online: false, quality: 'offline' });
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Periodic connection quality test
+    const qualityTestInterval = setInterval(() => {
+        if (!navigator.onLine) return;
+        
+        const startTime = Date.now();
+        fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+            method: 'HEAD',
+            mode: 'no-cors',
+            cache: 'no-cache'
+        })
+        .then(() => {
+            const responseTime = Date.now() - startTime;
+            if (responseTime < 500) {
+                connectionQuality = 'excellent';
+            } else if (responseTime < 1500) {
+                connectionQuality = 'good';
+            } else if (responseTime < 3000) {
+                connectionQuality = 'fair';
+            } else {
+                connectionQuality = 'poor';
+            }
+            
+            if (callback) callback({ online: true, quality: connectionQuality, responseTime });
+        })
+        .catch(() => {
+            connectionQuality = 'poor';
+            if (callback) callback({ online: true, quality: 'poor' });
+        });
+    }, 30000); // Test every 30 seconds
+    
+    // Return cleanup function
+    return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+        clearInterval(qualityTestInterval);
+    };
+}
+
+// Request queue for handling requests when offline
+class RequestQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+    
+    add(requestFunction, priority = 0) {
+        this.queue.push({ requestFunction, priority, timestamp: Date.now() });
+        this.queue.sort((a, b) => b.priority - a.priority); // Higher priority first
+        
+        if (navigator.onLine && !this.processing) {
+            this.process();
+        }
+    }
+    
+    async process() {
+        if (this.processing || this.queue.length === 0) return;
+        
+        this.processing = true;
+        
+        while (this.queue.length > 0 && navigator.onLine) {
+            const { requestFunction } = this.queue.shift();
+            
+            try {
+                await requestFunction();
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between requests
+            } catch (error) {
+                if (window.ExperimentLogger) {
+                    window.ExperimentLogger.log('Queued request failed: ' + error.message);
+                }
+                // Optionally re-queue failed requests
+                break;
+            }
+        }
+        
+        this.processing = false;
+    }
+    
+    clear() {
+        this.queue = [];
+    }
+    
+    getStatus() {
+        return {
+            pending: this.queue.length,
+            processing: this.processing
+        };
+    }
+}
+
+// Create a global request queue instance
+const globalRequestQueue = new RequestQueue();
+
+// Start processing queue when connection is restored
+window.addEventListener('online', () => {
+    globalRequestQueue.process();
+});
 
 // Export all network functions
 window.ExperimentNetwork = {
     testConnection,
     saveResultsToSheet,
-    clearGoogleSheet,
+    sendAdminRequest,
     checkNetworkStatus,
+    performDetailedConnectionTest,
     retryOperation,
     sendBatchData,
     fetchWithTimeout,
-    classifyNetworkError
+    classifyNetworkError,
+    startNetworkMonitoring,
+    RequestQueue,
+    globalRequestQueue
 };
