@@ -732,6 +732,37 @@
             display: none;
             z-index: 1000;
         }
+		
+		/* Fix spacing issues by removing unnecessary margins */
+		h2 {
+    		margin-top: 0;
+    		margin-bottom: 15px;
+		}
+		
+		/* Reduce container top margin when it's the first element */
+		#container {
+    		margin-top: 0;
+    		margin-bottom: 10px;
+    		margin-left: auto;
+    		margin-right: auto;
+    		width: 95%;
+    		max-width: 800px;
+		}
+		
+		/* Ensure practice page doesn't have excessive top spacing */
+		#practiceTrialsPage {
+    		height: 100vh;
+    		overflow: hidden;
+    		padding: 10px 20px 20px 20px; /* Reduced top padding */
+		}
+		
+		/* Similar fixes for other training pages */
+		#noChangeTrainingPage,
+		#changeTrainingPage {
+    		height: 100vh;
+    		overflow: hidden;
+    		padding: 10px 20px 20px 20px; /* Reduced top padding */
+		}
     </style>
 </head>
 <body>
@@ -743,7 +774,7 @@
         <!-- Admin Mode Indicator -->
         <div id="adminModeIndicator">ADMIN MODE ACTIVE</div>
         
-        <h1 id="pageTitle">Cognitive Task</h1>
+        
         
         <!-- Connection error message -->
         <div id="connectionErrorMessage">
@@ -770,7 +801,7 @@
             <p id="invalidIdText3">Please try again with the correct ID format.</p>
         </div>
         
-        <div id="participantIdForm">
+        <div id="participantIdForm" style="display:none;">
             <label for="participantId" id="participantIdLabel">Participant ID:</label>
             <input type="text" id="participantId" required>
             <button id="startExperiment">Begin Experiment</button>
@@ -1013,8 +1044,12 @@
         // Define language dictionary
         const langDict = {
             en: {
-                pageTitle: "Cognitive Task",
                 
+                
+				trialCounter: "Trial {0} of {1}",
+				
+				pleaseEnterParticipantId: "Please enter a Participant ID",
+				
                 // Connection error
                 connectionErrorText1: "Unable to connect to Google Sheets.",
                 connectionErrorText2: "Please use a different WIFI or Mobile Data connection and refresh the page.",
@@ -1162,13 +1197,22 @@
 				// Timer stuff
 				timeoutMessage: "Too slow, skipping!",
                 timerDisplay: "Time: ",
+				
+				resultsSavedSuccess: "Results saved successfully!",
+				errorSavingData: "Error saving data:",
+				alertSheetClearedConfirm: "This will remove ALL data from the Google Sheet. This action cannot be undone!",
+				alertLocalStorageConfirm: "This will remove all stored participant IDs and device IDs, allowing them to be reused.",
                 
                 // Admin overrides
                 adminOverride: "Override (Admin Only)"
             },
             he: {
-                pageTitle: "משימה קוגניטיבית",
                 
+                
+				trialCounter: "ניסיון {0} מתוך {1}",
+				
+				pleaseEnterParticipantId: "אנא הזן/י מזהה משתתף",
+				
                 // Connection error
                 connectionErrorText1: "לא ניתן להתחבר ל-Google Sheets.",
                 connectionErrorText2: "אנא השתמש/י בחיבור WiFi אחר ורענן/י את הדף.",
@@ -1317,6 +1361,11 @@
 				timeoutMessage: "איטי מדי, מדלג!",
                 timerDisplay: "זמן: ",
                 
+				resultsSavedSuccess: "התוצאות נשמרו בהצלחה!",
+				errorSavingData: "שגיאה בשמירת נתונים:",
+				alertSheetClearedConfirm: "פעולה זו תסיר את כל הנתונים מגיליון Google. לא ניתן לבטל פעולה זו!",
+				alertLocalStorageConfirm: "פעולה זו תסיר את כל מזהי המשתתפים והמכשירים המאוחסנים, ותאפשר להשתמש בהם מחדש.",
+				
                 // Admin overrides
                 adminOverride: "עקיפה (מנהל בלבד)"
             }
@@ -1361,7 +1410,7 @@
             }
             
             // Update all text elements
-            updateText("pageTitle", "pageTitle");
+            
             
             // Connection error
             updateText("connectionErrorText1", "connectionErrorText1");
@@ -1404,6 +1453,9 @@
                     "instructionsUnderstoodButtonDisabled" : "instructionsUnderstoodButton");
             }
             
+			// Update instructions timer text
+			updateText("instructionsTimer", "instructionsTimer");
+			
             // No change training
             updateText("noChangeTitle", "noChangeTitle");
             updateText("noChangeText1", "noChangeText1");
@@ -1538,6 +1590,35 @@
         	updateToggleButtons('toggleNoChangeDetails', 'noChangeFullInstructions', 'showInstructions', 'hideInstructions');
         	updateToggleButtons('toggleChangeDetails', 'changeFullInstructions', 'showInstructions', 'hideInstructions');
         	updateToggleButtons('togglePracticeDetails', 'practiceFullInstructions', 'showPracticeDetails', 'hidePracticeDetails');
+			
+			// Update completion code instruction text that might be visible
+			const completionCodeText = document.getElementById('completionCodeText1');
+			if (completionCodeText) {
+    			updateText("completionCodeText1", "completionCodeText1");
+			}
+			
+			// Update any visible save status
+			if (saveStatus && saveStatus.textContent.includes('Results saved') || saveStatus.textContent.includes('התוצאות נשמרו')) {
+    			saveStatus.textContent = langDict[currentLang].resultsSavedSuccess;
+			}
+			
+			// Update any error messages that might be showing
+			if (saveStatus && (saveStatus.textContent.includes('Error saving') || saveStatus.textContent.includes('שגיאה בשמירת'))) {
+    			// Keep the error but update the prefix
+    			const errorPart = saveStatus.textContent.split(': ')[1] || saveStatus.textContent.split(' ')[3] || '';
+    			saveStatus.textContent = langDict[currentLang].errorSavingData + ' ' + errorPart;
+			}
+			
+			// Update trial counter display if in experiment phase
+			const experimentTrialInfo = document.getElementById('experimentTrialInfo');
+			if (experimentTrialInfo && experimentTrialInfo.style.display !== 'none') {
+    			const currentTrial = state.currentTrial || 1;
+    			const totalTrials = config.numTrials;
+    			experimentTrialInfo.innerHTML = langDict[currentLang].trialCounter
+        			.replace('{0}', `<span id="currentTrialDisplay">${currentTrial}</span>`)
+        			.replace('{1}', `<span id="totalTrialsDisplay">${totalTrials}</span>`);
+			}
+			
         }
         
 		
@@ -2070,13 +2151,12 @@
             .then(() => {
                 log('Google Sheet cleared successfully');
                 savingMessage.style.display = 'none';
-                alert(currentLang === 'en' ? langDict[currentLang].sheetCleared : langDict[currentLang].sheetCleared);
+                alert(langDict[currentLang].sheetCleared);
             })
             .catch(error => {
                 log('Error clearing Google Sheet: ' + error.toString());
                 savingMessage.style.display = 'none';
-                alert(currentLang === 'en' ? 'Error clearing Google Sheet: ' + error.toString() : 
-                      'שגיאה בניקוי גיליון Google: ' + error.toString());
+                alert(langDict[currentLang].errorSavingData + ' ' + error.toString());
             });
         }
         
@@ -2087,15 +2167,16 @@
             localStorage.removeItem('changeDetectionParticipantDeviceMap');
             
             log('Local storage cleared - removed all participant and device IDs');
-            alert(currentLang === 'en' ? langDict[currentLang].localStorageCleared : langDict[currentLang].localStorageCleared);
+            alert(langDict[currentLang].localStorageCleared);
         }
         
         // Test connection to Google Sheets
         function testConnection() {
             log('Testing connection to Google Sheets...');
             
-            // Hide form until we confirm connection
+            // Hide forms and show loading
             participantIdForm.style.display = 'none';
+            instructionsPage.style.display = 'none';
             connectionErrorMessage.style.display = 'none';
             
             // Show some indication that we're testing
@@ -2113,21 +2194,41 @@
                 log('Connection to Google successful');
                 isInternetConnected = true;
                 savingMessage.style.display = 'none';
-                participantIdForm.style.display = 'block';
+                
+                // Show instructions page directly instead of participant ID form
+                instructionsPage.style.display = 'block';
                 connectionErrorMessage.style.display = 'none';
+                
+                // Start the 5-second timer for the instructions page
+                startInstructionsTimer();
             })
             .catch(error => {
                 // Connection failed
                 log('Connection to Google failed: ' + error);
                 isInternetConnected = false;
                 savingMessage.style.display = 'none';
-                participantIdForm.style.display = 'none';
+                instructionsPage.style.display = 'none';
                 connectionErrorMessage.style.display = 'block';
                 // Show debug info in case it helps troubleshoot
                 debugInfo.style.display = 'block';
             });
         }
         
+		// Start the instructions timer (extracted to reuse)
+		function startInstructionsTimer() {
+    		let timeLeft = 5;
+    		const instructionsInterval = setInterval(function() {
+        		timeLeft--;
+        		instructionsTimer.textContent = langDict[currentLang].instructionsTimerRemaining.replace('{0}', timeLeft);
+        		if (timeLeft <= 0) {
+            		clearInterval(instructionsInterval);
+            		instructionsTimer.textContent = langDict[currentLang].instructionsTimer;
+            		instructionsUnderstoodButton.disabled = false;
+            		instructionsUnderstoodButton.textContent = langDict[currentLang].instructionsUnderstoodButton;
+        		}
+    		}, 1000);
+		}
+		
         // Generate or retrieve a device ID
         function getDeviceId() {
             let storedDeviceId = localStorage.getItem('changeDetectionDeviceId');
@@ -2229,27 +2330,33 @@
         
         // Record this participation to prevent duplicates
         function recordParticipation(participantId) {
-            // Get the current lists
-            const previousParticipantIds = JSON.parse(localStorage.getItem('changeDetectionParticipants') || '[]');
+            // Get the current device list
             const previousDeviceIds = JSON.parse(localStorage.getItem('changeDetectionDevices') || '[]');
-            const participantToDeviceMap = JSON.parse(localStorage.getItem('changeDetectionParticipantDeviceMap') || '{}');
             
-            // Add the current participant and device
-            if (!previousParticipantIds.includes(participantId)) {
-                previousParticipantIds.push(participantId);
-                localStorage.setItem('changeDetectionParticipants', JSON.stringify(previousParticipantIds));
-            }
-            
+            // Add the current device (since we're now tracking by device primarily)
             if (!previousDeviceIds.includes(deviceId)) {
                 previousDeviceIds.push(deviceId);
                 localStorage.setItem('changeDetectionDevices', JSON.stringify(previousDeviceIds));
             }
             
-            // Map this participant ID to this device ID
-            participantToDeviceMap[participantId] = deviceId;
-            localStorage.setItem('changeDetectionParticipantDeviceMap', JSON.stringify(participantToDeviceMap));
-            
-            console.log('Recorded participation for participant ID: ' + participantId + ' and device ID: ' + deviceId);
+            // If participantId is provided, also record participant-related data
+            if (participantId) {
+                const previousParticipantIds = JSON.parse(localStorage.getItem('changeDetectionParticipants') || '[]');
+                const participantToDeviceMap = JSON.parse(localStorage.getItem('changeDetectionParticipantDeviceMap') || '{}');
+                
+                if (!previousParticipantIds.includes(participantId)) {
+                    previousParticipantIds.push(participantId);
+                    localStorage.setItem('changeDetectionParticipants', JSON.stringify(previousParticipantIds));
+                }
+                
+                // Map this participant ID to this device ID
+                participantToDeviceMap[participantId] = deviceId;
+                localStorage.setItem('changeDetectionParticipantDeviceMap', JSON.stringify(participantToDeviceMap));
+                
+                console.log('Recorded participation for participant ID: ' + participantId + ' and device ID: ' + deviceId);
+            } else {
+                console.log('Recorded participation for device ID: ' + deviceId);
+            }
         }
         
         // Debug logging function
@@ -2445,7 +2552,7 @@
             const idValue = participantIdInput.value.trim();
             
             if (idValue === '') {
-                alert(currentLang === "en" ? 'Please enter a Participant ID' : 'אנא הזן/י מזהה משתתף');
+                alert(langDict[currentLang].pleaseEnterParticipantId);
                 return;
             }
             
@@ -2500,8 +2607,13 @@
             }
         });
         
-        // Function to start the instruction sequence
+        // Function to start the instruction sequence (now used when bypassing device check)
         function startInstructionSequence() {
+            // Clear any warnings
+            previousParticipationWarning.style.display = 'none';
+            sameIdDifferentDeviceWarning.style.display = 'none';
+            invalidIdLengthWarning.style.display = 'none';
+            
             // Hide the participant ID form
             participantIdForm.style.display = 'none';
             
@@ -2509,34 +2621,56 @@
             instructionsPage.style.display = 'block';
             
             // Start the 5-second timer for the instructions page
-            let timeLeft = 5;
-            const instructionsInterval = setInterval(function() {
-                timeLeft--;
-                instructionsTimer.textContent = langDict[currentLang].instructionsTimerRemaining.replace('{0}', timeLeft);
-                if (timeLeft <= 0) {
-                    clearInterval(instructionsInterval);
-                    instructionsTimer.textContent = langDict[currentLang].instructionsTimer;
-                    instructionsUnderstoodButton.disabled = false;
-                    instructionsUnderstoodButton.textContent = langDict[currentLang].instructionsUnderstoodButton;
-                }
-            }, 1000);
+            startInstructionsTimer();
             
-            log('Showing instruction sequence - page 1');
+            log('Showing instruction sequence - bypassing device check');
         }
         
         // Event listener for the "I understand" button
         instructionsUnderstoodButton.addEventListener('click', function() {
-            // Hide instructions page
-            instructionsPage.style.display = 'none';
+            // If admin mode is active, bypass the device check
+            if (isAdminModeActive) {
+                log('Admin mode active: Bypassing device check');
+                proceedToTraining();
+                return;
+            }
             
-            // Show no-change training page
-            noChangeTrainingPage.style.display = 'block';
+            // Check if this device has already been used
+            const previousDeviceIds = JSON.parse(localStorage.getItem('changeDetectionDevices') || '[]');
+            const deviceAlreadyUsed = previousDeviceIds.includes(deviceId);
             
-			setupNoChangeTrainingForDevice();
-			
-            log('Moving to no-change training page');
+            if (deviceAlreadyUsed) {
+                log('Device already used detected. Showing warning.');
+                
+                // Hide instructions page
+                instructionsPage.style.display = 'none';
+                
+                // Show device already used warning
+                previousParticipationWarning.style.display = 'block';
+                
+                // Show bypass button if admin mode is active
+                if (isAdminModeActive) {
+                    bypassIdCheckButton.style.display = 'block';
+                }
+            } else {
+                // Device hasn't been used, proceed to training
+                proceedToTraining();
+            }
         });
         
+		// Function to proceed to training (extracted to reuse)
+		function proceedToTraining() {
+    		// Hide instructions page
+    		instructionsPage.style.display = 'none';
+		    
+    		// Show no-change training page
+    		noChangeTrainingPage.style.display = 'block';
+		    
+    		setupNoChangeTrainingForDevice();
+		    
+    		log('Moving to no-change training page');
+		}
+		
         // Run no-change training trial
         function runNoChangeTraining() {
             // Disable start button
@@ -3321,6 +3455,14 @@
             
             // Update trial counter
             state.currentTrial++;
+			
+			// Update the trial counter display with proper localization
+			const experimentTrialInfo = document.getElementById('experimentTrialInfo');
+			if (experimentTrialInfo && experimentTrialInfo.style.display !== 'none') {
+    			experimentTrialInfo.innerHTML = langDict[currentLang].trialCounter
+        			.replace('{0}', `<span id="currentTrialDisplay">${state.currentTrial}</span>`)
+        			.replace('{1}', `<span id="totalTrialsDisplay">${config.numTrials}</span>`);
+			}
             
             try {
                 // Update results display (but it's hidden during experiment)
@@ -3489,11 +3631,11 @@
             .then(response => {
                 log('Response received from Google Script');
                 state.dataSaved = true;
-                saveStatus.textContent = currentLang === "en" ? 'Results saved successfully!' : 'התוצאות נשמרו בהצלחה!';
+                saveStatus.textContent = langDict[currentLang].resultsSavedSuccess;
                 
                 // Record this participation unless we're in admin mode
                 if (!isAdminModeActive) {
-                    recordParticipation(participantId);
+                    recordParticipation(null);
                 }
                 
                 // Show thank you screen
@@ -3501,7 +3643,7 @@
             })
             .catch(error => {
                 log('Error saving data: ' + error.message);
-                saveStatus.textContent = currentLang === "en" ? 'Error saving data: ' + error.message : 'שגיאה בשמירת נתונים: ' + error.message;
+                saveStatus.textContent = langDict[currentLang].errorSavingData + ' ' + error.message;
                 
                 // Show retry button
                 retryButton.style.display = 'block';
