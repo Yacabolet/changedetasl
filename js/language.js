@@ -199,7 +199,7 @@ const langDict = {
         
         // Instructions page
         instructionsTitle: "הוראות הניסוי",
-        instructionsText1: "ברוכים/ברוכות הבאים למשימה הקוגניטיבית של הניסוי שלנו.",
+        instructionsText1: "ברוכים/ברוכות הבאים/הבאות למשימה הקוגניטיבית של הניסוי שלנו.",
         instructionsText2: "כיצד זה עובד:",
         instructionsStep1: "תראה/י מספר ריבועים צבעוניים על המסך לזמן קצר.",
         instructionsStep2: "הריבועים ייעלמו לרגע.",
