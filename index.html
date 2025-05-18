@@ -1835,7 +1835,10 @@
                 state.stimuliColorIndices.push(i % availableColors.length);
             }
             
-            log(`Assigned colors for trial: ${state.stimuliColorIndices.map(i => availableColors[i]).join(', ')}`);
+            logTrial(
+                `Assigned colors for trial: ${state.stimuliColorIndices.map(i => availableColors[i]).join(', ')}`,
+                'Colors assigned for trial'
+            );
         }
         
         // Initialize admin controls
@@ -2088,7 +2091,10 @@
             // Update trial counter
             state.currentTrial++;
             
-            log(`Trial ${state.currentTrial}: Timeout - no response within ${config.responseTimeLimit / 1000} seconds`);
+            logTrial(
+                `Trial ${state.currentTrial}: Timeout - no response within ${config.responseTimeLimit / 1000} seconds`,
+                `Trial ${state.currentTrial}: Response timeout`
+            );
             
             // Update results
             updateResults();
@@ -2372,8 +2378,15 @@
             debugInfo.scrollTop = debugInfo.scrollHeight;
         }
 		
-		// Add this after the isMobile detection and other initialization code
-
+		// Conditional logging function - detailed logs only in admin mode
+		function logTrial(adminMessage, publicMessage) {
+    		if (isAdminModeActive) {
+        		log(adminMessage);
+    		} else {
+        		log(publicMessage || 'Trial processed');
+    		}
+		}
+		
 		// Function to setup practice page based on device type
 		function setupPracticePageForDevice() {
     		const toggleButton = document.getElementById('togglePracticeDetails');
@@ -2705,7 +2718,7 @@
             clearTrainingArea(noChangeTrainingArea);
             displayStimuliInTrainingArea(trainingPositions, noChangeTrainingArea, trainingColorIndices);
             
-            log('No-change training: displaying initial stimuli');
+            logTrial('No-change training: displaying initial stimuli', 'No-change training: Phase 1');
             
             // After study time, show blank screen
             setTimeout(() => {
@@ -2720,7 +2733,7 @@
                     noChangeTrainingYes.disabled = false;
                     noChangeTrainingNo.disabled = false;
                     
-                    log('No-change training: displaying test stimuli (no change)');
+                    logTrial('No-change training: displaying test stimuli (no change)', 'No-change training: Phase 2');
                 }, config.blankTime);
             }, config.studyTime);
         }
@@ -2738,7 +2751,7 @@
             noChangeFeedback.style.color = 'red';
             noChangeFeedback.style.display = 'block';
             
-            log('No-change training: incorrect response ("yes")');
+            logTrial('No-change training: incorrect response ("yes")', 'No-change training: Response recorded');
             
             // Enable retry after 5 seconds
             setTimeout(function() {
@@ -2757,7 +2770,7 @@
             noChangeFeedback.style.color = 'green';
             noChangeFeedback.style.display = 'block';
             
-            log('No-change training: correct response ("no")');
+            logTrial('No-change training: correct response ("no")', 'No-change training: Response recorded');
             
             // Move to change training after 2 seconds
             setTimeout(function() {
@@ -2801,7 +2814,7 @@
             clearTrainingArea(changeTrainingArea);
             displayStimuliInTrainingArea(initialPositions, changeTrainingArea, trainingColorIndices);
             
-            log('Change training: displaying initial stimuli');
+            logTrial('Change training: displaying initial stimuli', 'Change training: Phase 1'); 
             
             // After study time, show blank screen
             setTimeout(() => {
@@ -2826,7 +2839,7 @@
                         changedPositions[indices[0]] = { ...changedPositions[indices[1]] };
                         changedPositions[indices[1]] = temp;
                         
-                        log(`Change training: Swapped positions of stimuli ${indices[0]} and ${indices[1]}`);
+                        logTrial(`Change training: Swapped positions of stimuli ${indices[0]} and ${indices[1]}`, 'Change training: Phase 2');
                     } else {
                         // Move random objects with distance constraints
                         const indices = getRandomIndices(config.numStimuli, numObjectsToMove);
@@ -2863,7 +2876,7 @@
                             changedPositions[index] = newPos;
                         });
                         
-                        log(`Change training: Changed positions of ${numObjectsToMove} stimuli: ${indices.join(', ')}`);
+                        logTrial(`Change training: Changed positions of ${numObjectsToMove} stimuli: ${indices.join(', ')}`, 'Change training: Phase 2');
                     }
                     
                     // Display changed stimuli
@@ -2888,7 +2901,7 @@
             changeFeedback.style.color = 'green';
             changeFeedback.style.display = 'block';
             
-            log('Change training: correct response ("yes")');
+            logTrial('Change training: correct response ("yes")', 'Change training: Response recorded');
             
             // Move to practice trials after 2 seconds
             setTimeout(function() {
@@ -2906,7 +2919,7 @@
             changeFeedback.style.color = 'red';
             changeFeedback.style.display = 'block';
             
-            log('Change training: incorrect response ("no")');
+            logTrial('Change training: incorrect response ("no")', 'Change training: Response recorded');
             
             // Enable retry after 5 seconds
             setTimeout(function() {
@@ -2994,7 +3007,10 @@
 			clearPracticeArea(practiceArea);
 			displayStimuliInPracticeArea(trial.positions, practiceArea, trial.colorIndices);
 			
-			log(`Practice trial ${state.currentPracticeTrial + 1}: ${trial.hasChange ? 'Change' : 'No change'}`);
+			logTrial(
+    			`Practice trial ${state.currentPracticeTrial + 1}: ${trial.hasChange ? 'Change' : 'No change'}`,
+    			`Practice trial ${state.currentPracticeTrial + 1}: Started`
+			);
 			
 			// After study time, blank screen
 			setTimeout(() => {
@@ -3100,7 +3116,10 @@
 				setTimeout(retryAllPracticeTrials, 5000);
 			}
 			
-			log(`Practice trial ${state.currentPracticeTrial + 1}: User responded "${response}", ${isCorrect ? 'correct' : 'incorrect'}`);
+			logTrial(
+    			`Practice trial ${state.currentPracticeTrial + 1}: User responded "${response}", ${isCorrect ? 'correct' : 'incorrect'}`,
+    			`Practice trial ${state.currentPracticeTrial + 1}: Response recorded`
+			);
 		}
 		
 		function handlePracticeTimeout() {
@@ -3297,7 +3316,7 @@
             // Hide the start button during the experiment
             startButton.style.display = 'none';
             
-            log(`Starting trial ${state.currentTrial + 1} of ${config.numTrials}`);
+            logTrial(`Starting trial ${state.currentTrial + 1} of ${config.numTrials}`, `Starting trial ${state.currentTrial + 1}`);
             
             // Generate stimuli positions
             state.stimuliPositions = [];
@@ -3338,7 +3357,7 @@
                             testPositions[indices[0]] = { ...testPositions[indices[1]] };
                             testPositions[indices[1]] = temp;
                             
-                            log(`Trial ${state.currentTrial + 1}: Swapped positions of stimuli ${indices[0]} and ${indices[1]}`);
+                            logTrial(`Trial ${state.currentTrial + 1}: Swapped positions of stimuli ${indices[0]} and ${indices[1]}`, `Trial ${state.currentTrial + 1}: Stimuli updated`);
                         } else {
                             // Move random objects with distance constraints
                             const indices = getRandomIndices(config.numStimuli, numObjectsToMove);
@@ -3375,10 +3394,10 @@
                                 testPositions[index] = newPos;
                             });
                             
-                            log(`Trial ${state.currentTrial + 1}: Changed positions of ${numObjectsToMove} stimuli: ${indices.join(', ')}`);
+                            logTrial(`Trial ${state.currentTrial + 1}: Changed positions of ${numObjectsToMove} stimuli: ${indices.join(', ')}`, `Trial ${state.currentTrial + 1}: Stimuli updated`);
                         }
                     } else {
-                        log(`Trial ${state.currentTrial + 1}: No change`);
+                        logTrial(`Trial ${state.currentTrial + 1}: No change`, `Trial ${state.currentTrial + 1}: Stimuli displayed`);
                     }
                     
                     displayStimuli(testPositions);
@@ -3447,7 +3466,10 @@
             const isCorrect = (response === 'yes' && state.hasChange) || 
                              (response === 'no' && !state.hasChange);
             
-            log(`Trial ${state.currentTrial + 1}: User responded "${response}" in ${responseTime.toFixed(2)} seconds, which is ${isCorrect ? 'correct' : 'incorrect'}`);
+            logTrial(
+                `Trial ${state.currentTrial + 1}: User responded "${response}" in ${responseTime.toFixed(2)} seconds, which is ${isCorrect ? 'correct' : 'incorrect'}`,
+                `Trial ${state.currentTrial + 1}: User responded "${response}" in ${responseTime.toFixed(2)} seconds`
+            );
             
             if (isCorrect) {
                 state.correctResponses++;
