@@ -1,13 +1,7 @@
-// Configuration constants - read from environment config
-const GOOGLE_SCRIPT_URL = window.ENV_CONFIG?.GOOGLE_SCRIPT_URL || 'PLACEHOLDER_URL';
-const SPREADSHEET_URL = window.ENV_CONFIG?.SPREADSHEET_URL || 'PLACEHOLDER_URL';
-const ADMIN_PASSWORD = window.ENV_CONFIG?.ADMIN_PASSWORD || 'PLACEHOLDER_PASSWORD';
-
-// Check if environment config is loaded
-if (!window.ENV_CONFIG) {
-    console.error('Environment configuration not loaded. Please ensure env-config.js exists and is properly configured.');
-    alert('Configuration error: Please contact the administrator.');
-}
+// Configuration constants
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbl7x9bHih2MCnyF70hM0APpTyFUL5JDjmXFaBNz97ExDIF_CpESGk5Z2tolEJUDM_1A/exec';
+const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-jEKZo_zAfuIUd7rox2DW6vDLL2PB-3jShe3w5ktczU/edit#gid=0';
+const ADMIN_PASSWORD = '25032000';
 
 // Global variables
 let participantId = '';

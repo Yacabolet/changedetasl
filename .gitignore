@@ -1,9 +1,0 @@
-# Environment configuration (contains sensitive data)
-js/env-config.js
-
-# Other common files to ignore
-node_modules/
-.env
-*.log
-.DS_Store
-Thumbs.db
