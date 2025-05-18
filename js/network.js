@@ -1,4 +1,4 @@
-// Network communication and API calls
+// Updated network.js - Compatible with your existing Google Apps Script
 
 // API Communication functions
 function testConnection() {
@@ -98,13 +98,15 @@ function saveResultsToSheet() {
         if (state.timeoutTrials.includes(i)) {
             trialStatuses.push('timeout');
         } else {
+            // Determine if this trial was correct
+            // Note: This is a simplified version - you may need to adjust based on your data structure
             const isCorrect = i < state.correctResponses;
             trialStatuses.push(isCorrect ? 'correct' : 'incorrect');
         }
     }
     const trialStatusesStr = trialStatuses.join(',');
     
-    // Prepare data object
+    // Prepare data object to match your Google Script structure
     const data = {
         participantId: window.ExperimentConfig.participantId,
         deviceId: window.ExperimentConfig.deviceId,
@@ -181,6 +183,7 @@ function saveResultsToSheet() {
     });
 }
 
+// Updated clear function to work with your authentication system
 function clearGoogleSheet() {
     if (window.ExperimentLogger) {
         window.ExperimentLogger.log('Attempting to clear Google Sheet...');
@@ -192,13 +195,29 @@ function clearGoogleSheet() {
         savingMessage.innerHTML = `<h2>${window.LanguageManager.getText('savingText')}</h2>`;
     }
     
-    return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL + '?action=clearSheet', {
-        method: 'GET',
-        mode: 'no-cors'
+    // Get admin password for authentication
+    const adminPassword = prompt('Enter admin password to confirm sheet clearing:');
+    if (!adminPassword) {
+        if (savingMessage) savingMessage.style.display = 'none';
+        return Promise.resolve({ success: false, error: 'Operation cancelled' });
+    }
+    
+    const requestData = {
+        action: 'clearSheet',
+        adminPassword: adminPassword
+    };
+    
+    return fetch(window.ExperimentConfig.GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
     })
     .then(() => {
         if (window.ExperimentLogger) {
-            window.ExperimentLogger.log('Google Sheet cleared successfully');
+            window.ExperimentLogger.log('Google Sheet clear request sent');
         }
         
         if (savingMessage) savingMessage.style.display = 'none';

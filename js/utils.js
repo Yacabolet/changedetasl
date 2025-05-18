@@ -1,3 +1,5 @@
+// Updated utils.js - Remove client-side password checking
+
 // Utility functions for the experiment
 
 // Random number and array utilities
@@ -103,10 +105,8 @@ function hashString(str) {
     return hash.toString(16);
 }
 
-// Admin password checking
-function checkAdminPassword(inputPassword) {
-    return inputPassword === window.ExperimentConfig.ADMIN_PASSWORD;
-}
+// Admin password checking is now handled server-side
+// This function is removed for security
 
 // Device type checking utilities
 function isMobileDevice() {
@@ -236,14 +236,14 @@ function generateRandomPosition(areaWidth, areaHeight, stimulusSize) {
     return { x, y };
 }
 
-// Export all utility functions
+// Export all utility functions (checkAdminPassword removed)
 window.ExperimentUtils = {
     getRandomIndices,
     randomizeColors,
     getDeviceId,
     generateCompletionCode,
     hashString,
-    checkAdminPassword,
+    // checkAdminPassword removed - now handled server-side
     isMobileDevice,
     isLocalStorageAvailable,
     formatResponseTime,

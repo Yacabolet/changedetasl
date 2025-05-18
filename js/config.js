@@ -1,7 +1,6 @@
-// Configuration constants
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbl7x9bHih2MCnyF70hM0APpTyFUL5JDjmXFaBNz97ExDIF_CpESGk5Z2tolEJUDM_1A/exec';
+// Updated config.js - Remove admin password
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXd6075nLRbNOlk_bVAsS0z5twApEjmX9alKOwQk_IyXKoQNChxDZInuf5nTZYm8DjqQ/exec';
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-jEKZo_zAfuIUd7rox2DW6vDLL2PB-3jShe3w5ktczU/edit#gid=0';
-const ADMIN_PASSWORD = '25032000';
 
 // Global variables
 let participantId = '';
@@ -14,7 +13,7 @@ let isAdminModeActive = false;
 // Device detection
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// Experiment configuration
+// Experiment configuration 
 const config = {
     numTrials: 10,
     numStimuli: 5,
@@ -31,13 +30,13 @@ const config = {
     swapProbability: 0.3
 };
 
-// Stimulus colors array
+// Stimulus colors array 
 const stimuliColors = [
     '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
     '#FF00FF', '#00FFFF', '#FF8000', '#8000FF'
 ];
 
-// Experiment state
+// Experiment state 
 let state = {
     currentTrial: 0,
     correctResponses: 0,
@@ -58,11 +57,10 @@ let state = {
     trialTimeout: null
 };
 
-// Export all configuration and state
+// Export all configuration and state 
 window.ExperimentConfig = {
     GOOGLE_SCRIPT_URL,
     SPREADSHEET_URL,
-    ADMIN_PASSWORD,
     config,
     stimuliColors,
     state,
